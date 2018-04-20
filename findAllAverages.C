@@ -23,52 +23,58 @@ TGraph *getAveragePowerSpectrum(Int_t numGraphs, TGraph **graphs);
 
 TGraph *getZeroedAverage(Int_t numGraphs, TGraph **graphs);
 
-void findAllAverages(string filename){
+void findAllAverages(string filename, bool recreate=false){
 
   string finput = filename + ".root";
   string foutput = filename + "_averages.root";
-  
-  int ngraphs = fillGraphs(finput);
-
-  TGraph *justAvg       = justAverage( ngraphs, graphs );
-
-  TGraph *avgPowerSpectrum  = getAveragePowerSpectrum ( ngraphs, graphs );
-  
-  TGraph *noiseTemplate = FFTtools::correlateAndAverage( ngraphs, graphs );
-
-  TGraph *noiseTempPS   = FFTtools::makePowerSpectrumVoltsSeconds( noiseTemplate );
-  
-  TGraph *filteredAvg   = getFilteredAverage( ngraphs, graphs, noiseTempPS, 0.01 );
-
-  TGraph *filteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( filteredAvg );
-
-  TGraph *fancyFilteredAvg   = getFancyFilteredAverage( ngraphs, graphs, noiseTempPS, 0.01 );
-
-  TGraph *fancyFilteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( fancyFilteredAvg );
-
-  TGraph *zeroedAvg      = getZeroedAverage( ngraphs, graphs);
-  
-  //  TGraph *subtractedAvg = getSubtractedAverage( ngraphs, graphs, noiseTemplate );
-
-  TH2D *periodogram     = getPeriodogram( ngraphs, graphs, noiseTemplate );
-
-  TH2D *voltsHisto      = getVoltsHistogram( ngraphs, graphs );
 
   
+  TFile *fintemp = new TFile(foutput.c_str(), "read");
+   
+  if (fintemp->IsZombie() || recreate){
+     
+    int ngraphs = fillGraphs(finput);
 
-  TFile *fout = new TFile(foutput.c_str(), "recreate");
-  justAvg         ->Write("justAvg");
-  avgPowerSpectrum    ->Write("avgPowerSpectrum");
-  noiseTemplate   ->Write("noiseTemplate");
-  noiseTempPS     ->Write("noiseTemplatePS");
-  filteredAvg     ->Write("filteredAvg");
-  filteredAvgPS   ->Write("filteredAvgPS");
-  fancyFilteredAvg     ->Write("fancyFilteredAvg");
-  fancyFilteredAvgPS   ->Write("fancyFilteredAvgPS");
-  zeroedAvg       ->Write("zeroedAvg");
-  // subtractedAvg   ->Write("subtractedAvg");
-  periodogram     ->Write("periodogram");
-  voltsHisto      ->Write("voltsHisto");
+    TGraph *justAvg       = justAverage( ngraphs, graphs );
+
+    TGraph *avgPowerSpectrum  = getAveragePowerSpectrum ( ngraphs, graphs );
+  
+    TGraph *noiseTemplate = FFTtools::correlateAndAverage( ngraphs, graphs );
+
+    TGraph *noiseTempPS   = FFTtools::makePowerSpectrumVoltsSeconds( noiseTemplate );
+  
+    TGraph *filteredAvg   = getFilteredAverage( ngraphs, graphs, noiseTempPS, 0.05 );
+
+    TGraph *filteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( filteredAvg );
+
+    TGraph *fancyFilteredAvg   = getFancyFilteredAverage( ngraphs, graphs, noiseTempPS, 0.01 );
+
+    TGraph *fancyFilteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( fancyFilteredAvg );
+
+    TGraph *zeroedAvg      = getZeroedAverage( ngraphs, graphs);
+  
+    //  TGraph *subtractedAvg = getSubtractedAverage( ngraphs, graphs, noiseTemplate );
+
+    TH2D *periodogram     = getPeriodogram( ngraphs, graphs, noiseTemplate );
+
+    TH2D *voltsHisto      = getVoltsHistogram( ngraphs, graphs );
+
+
+    TFile *fout = new TFile(foutput.c_str(), "recreate");
+    justAvg         ->Write("justAvg");
+    avgPowerSpectrum    ->Write("avgPowerSpectrum");
+    noiseTemplate   ->Write("noiseTemplate");
+    noiseTempPS     ->Write("noiseTemplatePS");
+    filteredAvg     ->Write("filteredAvg");
+    filteredAvgPS   ->Write("filteredAvgPS");
+    fancyFilteredAvg     ->Write("fancyFilteredAvg");
+    fancyFilteredAvgPS   ->Write("fancyFilteredAvgPS");
+    zeroedAvg       ->Write("zeroedAvg");
+    // subtractedAvg   ->Write("subtractedAvg");
+    periodogram     ->Write("periodogram");
+    voltsHisto      ->Write("voltsHisto");
+  }
+   
 }
 
 

@@ -32,22 +32,30 @@ void getSubtraction(string fieldname, string divname){
       TFile *file2 = new TFile(f2.c_str(), "read");
 
       TGraph *g1 = (TGraph*)file1->Get(whichAvg[iavg].c_str());
-      g1->SetLineColor(kBlue);
+      g1->SetName("g1");
       TGraph *g2 = (TGraph*)file2->Get(whichAvg[iavg].c_str());
-      g2->SetLineColor(kRed);
-  
+      g2->SetName("g2");
+
+      file1->Close();
+      file2->Close();
+      
       int N = g1->GetN();
       double *x = g1->GetX();
       double *y1 = g1->GetY();
       double *y2 = g2->GetY();
       double newy[100000];
-      for (int i=0; i<N; i++) newy[i] = y1[i] -  y2[i];
-
-      TGraph *gdiff = new TGraph(N, x, newy);
+      double newx[100000];
+      for (int i=0; i<N; i++){
+	newy[i] = y1[i] -  y2[i];
+	newx[i] = x[i];
+      }
+      TGraph *gdiff = new TGraph(N, newx, newy);
 
       TCanvas *c = new TCanvas("c");
       c->Divide(1,2);
       c->cd(1);
+      g1->SetLineColor(kBlue);
+      g2->SetLineColor(kRed);
       g1->GetXaxis()->SetRangeUser(xmin, xmax);
       g1->GetYaxis()->SetRangeUser(ymin, ymax);
       g1->Draw("Al");
@@ -57,9 +65,12 @@ void getSubtraction(string fieldname, string divname){
       gdiff->GetYaxis()->SetRangeUser(ymin, ymax);  
       gdiff->Draw("Al");
 
+      
       out->cd();
       c->Write((chnamenice[ich]+"_"+whichAvg[iavg]+"_canvas").c_str());
       gdiff->Write((chnamenice[ich]+"_"+whichAvg[iavg]).c_str());
+
+      delete c;
     }
   }
 
