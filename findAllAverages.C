@@ -43,7 +43,7 @@ void findAllAverages(string filename, bool recreate=false){
 
     TGraph *noiseTempPS   = FFTtools::makePowerSpectrumVoltsSeconds( noiseTemplate );
   
-    TGraph *filteredAvg   = getFilteredAverage( ngraphs, graphs, noiseTempPS, 0.05 );
+    TGraph *filteredAvg   = getFilteredAverage( ngraphs, graphs, noiseTempPS, 0.1 );
 
     TGraph *filteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( filteredAvg );
 

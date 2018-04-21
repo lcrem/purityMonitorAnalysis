@@ -1,14 +1,17 @@
 #/bin/bash
 
-BASELINE="2018Apr11liquefaction/Day3_allLiquid/K_GK_signals/"
+BASELINE="2018Apr11liquefaction/Day3_allLiquid/cathodeANDanode/"
 
-FIELDS=("K-135GK135_150Vcm" "K-1600GK1100_1500Vcm" "K-1600GK1100_1500Vcm" "K-405GK405_450Vcm" "K-45GK45_50Vcm" "K-900GK900_1000Vcm" "K-900GK900_1000Vcm" "noField")
+FIELDS=("K-135GK135_150Vcm" "K-1600GK1100_1500Vcm" "K-22GK22_25Vcm" "K-405GK405_450Vcm" "K-45GK45_50Vcm" "K-900GK900_1000Vcm")
+DIVISIONS=("100mVdiv" "100mVdiv" "100mVdiv" "100mVdiv" "100mVdiv" "100mVdiv" )
 
-DIVISIONS=("200mVdiv" "100mVdiv" "500mVdiv" "200mVdiv" "200mVdiv" "100mVdiV" "500mVdiv" "200mVdiv")
+#FIELDS=("K-135GK135_150Vcm" "K-1600GK1100_1500Vcm" "K-1600GK1100_1500Vcm" "K-405GK405_450Vcm" "K-45GK45_50Vcm" "K-900GK900_1000Vcm" "K-900GK900_1000Vcm" "noField")
+
+#DIVISIONS=("200mVdiv" "100mVdiv" "500mVdiv" "200mVdiv" "200mVdiv" "100mVdiV" "500mVdiv" "200mVdiv")
 
 FIBRES="FibreIn FibreOut"
 
-CHANNELS="ch3 ch4"
+CHANNELS="ch4"
 
 for ((ifield=0;ifield<${#FIELDS[@]};++ifield));
 do

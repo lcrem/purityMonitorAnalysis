@@ -9,7 +9,7 @@ double xmax = 0.015E-3;
 double ymin = -0.8;
 double ymax = +0.8;
 
-string basename = "2018Apr11liquefaction/Day3_allLiquid/K_GK_signals/";
+string basename = "2018Apr11liquefaction/Day3_allLiquid/cathodeANDanode/";
 string whichAvg[4] = {"justAvg", "filteredAvg", "zeroedAvg", "fancyFilteredAvg"};
   
 void getSubtraction(string fieldname, string divname){
@@ -23,7 +23,7 @@ void getSubtraction(string fieldname, string divname){
 
   TFile *out = new TFile(outfile.c_str(), "recreate");
   
-  for (int ich=0; ich<2; ich++){
+  for (int ich=1; ich<2; ich++){
     for (int iavg=0; iavg<4; iavg++){
       string f1 = basename + fieldname + "_FibreIn_" + divname + "." + chname[ich] +".traces_averages.root";
       string f2 = basename + fieldname + "_FibreOut_" + divname + "."+ chname[ich] + ".traces_averages.root";

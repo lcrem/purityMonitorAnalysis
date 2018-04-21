@@ -1,14 +1,17 @@
 
 
-string basename="2018Apr11liquefaction/Day3_allLiquid/K_GK_signals/";
+// string basename="2018Apr11liquefaction/Day3_allLiquid/K_GK_signals/";
+// string fields[] = {"noField", "K-45GK45_50Vcm", "K-135GK135_150Vcm", "K-405GK405_450Vcm", "K-1600GK1100_1500Vcm"};
+// string divisions[]={"200mVdiv", "200mVdiv", "200mVdiv", "200mVdiv", "500mVdiv"};
+// string fieldNice[] = {"No field", "50 V/cm", "150 V/cm", "450 V/cm", "1500 V/cm"};
+//int colors[]       = {kBlack,  kGreen+1, kBlue+1, kRed, kViolet};   
 
-string fields[] = {"noField", "K-135GK135_150Vcm", "K-405GK405_450Vcm", "K-1600GK1100_1500Vcm"};
+string basename="2018Apr11liquefaction/Day3_allLiquid/cathodeANDanode/";
+string fields[]    = {"K-22GK22_25Vcm", "K-45GK45_50Vcm", "K-135GK135_150Vcm", "K-405GK405_450Vcm", "K-900GK900_1000Vcm", "K-1600GK1100_1500Vcm"};
+string divisions[] = {"100mVdiv", "100mVdiv", "100mVdiv", "100mVdiv", "100mVdiv", "100mVdiv"};
+string fieldNice[] = {"25 V/cm", "50 V/cm", "150 V/cm", "450 V/cm", "1000 V/cm", "1500 V/cm"};
+int colors[]       = {kBlack,  kGreen+1, kBlue+1, kRed, kViolet, kCyan};   
 
-string divisions[]={"200mVdiv",  "200mVdiv", "200mVdiv", "500mVdiv"};
-
-string fieldNice[] = {"No field", "150 V/cm", "450 V/cm", "1500 V/cm"};
-
-int colors[]       = {kBlack,  kGreen+1, kBlue+1, kRed};   
 
 TGraph *smoothGraph(TGraph *g, int nnn);
 
@@ -21,12 +24,14 @@ string smoothnice[2] = {"", "smooth"};
 
 void plotAll(bool isCathode=true,   bool isSmooth=true);
 
+void getPurity(TGraph *gGK, TGraph *gK, int fieldIndex);
+
 void plotAllCathode(){
 
   plotAll(true, true);
-  plotAll(false, true);
-  plotAll(true, false);
-  plotAll(false, false);
+  // plotAll(false, true);
+  // plotAll(true, false);
+  // plotAll(false, false);
 
 }
 
@@ -46,14 +51,15 @@ void plotAll(bool isCathode=true,
 
     TFile *fin = new TFile(filename.c_str(), "read");
 
-    gGK[ifield] = (TGraph*)fin->Get((chnamenice[0]+"_"+whichAvg[nAvgToUse]).c_str());
+    if (!isCathode) gGK[ifield] = (TGraph*)fin->Get((chnamenice[0]+"_"+whichAvg[nAvgToUse]).c_str());
+    else  gGK[ifield] = (TGraph*)fin->Get((chnamenice[1]+"_"+whichAvg[nAvgToUse]).c_str());
     gK[ifield] = (TGraph*)fin->Get((chnamenice[1]+"_"+whichAvg[2]).c_str());
     
     if (isSmooth){
       zeroBaseline(gGK[ifield]);
       zeroBaseline(gK[ifield]);
       gGK[ifield] = smoothGraph(gGK[ifield], 100);
-      gK[ifield]  = smoothGraph(gK[ifield],  20);
+      gK[ifield]  = smoothGraph(gK[ifield],  50);
     }
     
     fin->Close();
@@ -75,18 +81,25 @@ void plotAll(bool isCathode=true,
     gGK[ifield]->SetLineWidth(2);
     gK[ifield]->SetLineWidth(2);
     
+    gGK[ifield]->GetYaxis()->SetRangeUser(-scaleY[0], scaleY[0]);
+    gK[ifield]->GetYaxis()->SetRangeUser(-scaleY[1], scaleY[1]);
+    
     leg1->AddEntry(gK[ifield], fieldNice[ifield].c_str(), "l");
 
+
+    if (isSmooth){
+      cout << "Getting purity for field : " << fieldNice[ifield] << endl;
+      getPurity(gGK[ifield], gK[ifield], ifield);
+    }
     
     if (ifield==0){
-      cout << "Drawing" << endl;
+      c->cd();
       gGK[ifield]->SetTitle(Form("%s;Time [s];Amplitude [V]", chnamenice[0].c_str()));
       gK[ifield]->SetTitle(Form("%s;Time [s];Amplitude [V]", chnamenice[1].c_str()));
-      gGK[ifield]->GetYaxis()->SetRangeUser(-scaleY[isCathode], scaleY[isCathode]);
-      gK[ifield]->GetYaxis()->SetRangeUser(-scaleY[isCathode], scaleY[isCathode]);
       if (isCathode) gK[ifield]->Draw("Al");
       else gGK[ifield]->Draw("Al");
     }else{
+      c->cd();
       if (isCathode) gK[ifield]->Draw("l");
       else gGK[ifield]->Draw("l");
     }
@@ -141,4 +154,71 @@ void zeroBaseline(TGraph *g){
     y[ip] -=  meanVal;
   }
 
+}
+
+void getPurity(TGraph *gGK, TGraph *gK, int ifield){
+
+  int nGK     = gGK->GetN();
+  double *xGK = gGK->GetX();
+  double *yGK = gGK->GetY();
+
+  int preTrigger = nGK*45./200.;
+
+  int nK      = gK->GetN();
+  double *xK  = gK->GetX();
+  double *yK  = gK->GetY();
+
+  double maxGK     = 0;
+  double maxGKtime = 0;
+  double minK  = 999999;
+  double minKtime = 0;
+  for (int ip=preTrigger; ip<nGK*0.75; ip++){
+    if (yGK[ip]>maxGK){
+      maxGK     = yGK[ip];
+      maxGKtime = xGK[ip];
+    }
+  }
+  for (int ip=preTrigger; ip<nK*0.75; ip++){
+    if (yK[ip]<minK){
+      minK     = yK[ip];
+      minKtime = xK[ip];
+    }
+  }
+
+  maxGKtime*=1e6;
+  minKtime*=1e6;
+  
+  cout << "Max GK and time are " << maxGK << " " << maxGKtime << endl;
+  cout << "Min K and time are  " << minK  << " " << minKtime << endl;
+
+  double t0 = 85;
+  double lifetime = - (minKtime-t0)/TMath::Log(maxGK/TMath::Abs(minK));
+  cout << "The electrons lifetime is " << lifetime << endl;
+
+  TCanvas *c1 = new TCanvas("c1");
+  
+  gK->SetTitle(Form("%s;Time [s];Amplitude [V]", fieldNice[ifield].c_str()));
+  gK->Draw("Al");
+  gGK->Draw("l");
+
+  double xmin = gK->GetXaxis()->GetBinLowEdge(0);
+  double xmax = gK->GetXaxis()->GetBinUpEdge(nK);
+
+  TLine *l0 = new TLine(xmin, 0, xmax, 0);
+  l0->SetLineStyle(2);
+  l0->Draw();
+
+  TLine *lmin = new TLine(xmin, minK, xmax, minK);
+  lmin->SetLineStyle(2);
+  lmin->Draw();
+
+  TLine *lmax = new TLine(xmin, maxGK, xmax, maxGK);
+  lmax->SetLineStyle(2);
+  lmax->Draw();
+  
+  c1->Print(Form("plots/Field_%s.png", fields[ifield].c_str()));
+  c1->Print(Form("plots/Field_%s.pdf", fields[ifield].c_str()));
+  c1->Print(Form("plots/Field_%s.C", fields[ifield].c_str()));
+  
+  
 }
