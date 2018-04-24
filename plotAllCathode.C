@@ -7,10 +7,10 @@
 //int colors[]       = {kBlack,  kGreen+1, kBlue+1, kRed, kViolet};   
 
 string basename="2018Apr11liquefaction/Day3_allLiquid/cathodeANDanode/";
-string fields[]    = {"K-22GK22_25Vcm", "K-45GK45_50Vcm", "K-135GK135_150Vcm", "K-405GK405_450Vcm", "K-900GK900_1000Vcm", "K-1600GK1100_1500Vcm"};
-string divisions[] = {"100mVdiv", "100mVdiv", "100mVdiv", "100mVdiv", "100mVdiv", "100mVdiv"};
-string fieldNice[] = {"25 V/cm", "50 V/cm", "150 V/cm", "450 V/cm", "1000 V/cm", "1500 V/cm"};
-int colors[]       = {kBlack,  kGreen+1, kBlue+1, kRed, kViolet, kCyan};   
+string fields[]    = {"noField", "K-22GK22_25Vcm", "K-45GK45_50Vcm", "K-135GK135_150Vcm", "K-405GK405_450Vcm", "K-900GK900_1000Vcm", "K-1600GK1100_1500Vcm"};
+string divisions[] = {"200mVdiv", "100mVdiv", "100mVdiv", "100mVdiv", "100mVdiv", "100mVdiv", "100mVdiv"};
+string fieldNice[] = {"No field", "25 V/cm", "50 V/cm", "150 V/cm", "450 V/cm", "1000 V/cm", "1500 V/cm"};
+int colors[]       = {kGray+2,  kBlue+1, kCyan+1, kGreen+1,  kRed, kOrange+1, kViolet+1};   
 
 
 TGraph *smoothGraph(TGraph *g, int nnn);
@@ -25,6 +25,8 @@ string smoothnice[2] = {"", "smooth"};
 void plotAll(bool isCathode=true,   bool isSmooth=true);
 
 void getPurity(TGraph *gGK, TGraph *gK, int fieldIndex);
+
+Double_t fitf(Double_t *x, Double_t *par);
 
 void plotAllCathode(){
 
@@ -71,7 +73,7 @@ void plotAll(bool isCathode=true,
   int icolor = 52;
   
   
-  TLegend *leg1 = new TLegend(0.6, 0.6, 0.89, 0.89);
+  TLegend *leg1 = new TLegend(0.6, 0.55, 0.89, 0.89);
   
   for(int ifield=0; ifield<numFields; ifield++){
 
@@ -199,7 +201,7 @@ void getPurity(TGraph *gGK, TGraph *gK, int ifield){
   
   gK->SetTitle(Form("%s;Time [s];Amplitude [V]", fieldNice[ifield].c_str()));
   gK->Draw("Al");
-  gGK->Draw("l");
+  //  gGK->Draw("l");
 
   double xmin = gK->GetXaxis()->GetBinLowEdge(0);
   double xmax = gK->GetXaxis()->GetBinUpEdge(nK);
@@ -215,10 +217,48 @@ void getPurity(TGraph *gGK, TGraph *gK, int ifield){
   TLine *lmax = new TLine(xmin, maxGK, xmax, maxGK);
   lmax->SetLineStyle(2);
   lmax->Draw();
+
+  // Creates a Root fitf based on fitf fitf above
+  TF1 *func = new TF1("fitf",fitf,0.04E-3,0.24E-3,4);
+
+  // func->SetParameters(-5, -2, 24000, -28, 307000);
+  //  func->SetParameters( 0.0001, 4E-5, -4);
+  func->SetParameters(2, 40, -0.5, minKtime);
+  func->SetParLimits(0, 0, 10);
+  func->SetParLimits(1, 10, 100);
+  func->SetParLimits(2, -100, 0);
+  func->SetParLimits(3, 10, 100);
+  func->SetParName(0, "#sigma");
+  func->SetParName(1, "#tau_{D}");
+  func->SetParName(2, "a");
+  func->SetParName(3, "t_0");
+  
+
+  gStyle->SetOptFit(1);
+// Fit histogram in range defined by function
+  gK->Fit("fitf","RI");
+
   
   c1->Print(Form("plots/Field_%s.png", fields[ifield].c_str()));
   c1->Print(Form("plots/Field_%s.pdf", fields[ifield].c_str()));
   c1->Print(Form("plots/Field_%s.C", fields[ifield].c_str()));
   
   
+}
+
+
+
+Double_t fitf(Double_t *x, Double_t *par)
+{
+  
+  double t = x[0]*1E6 - par[3];
+  double sigma = par[0];
+  double tau   = par[1];
+  double a     = par[2];
+
+  double y = a*exp((sigma*sigma - 2*t*tau)/(2*tau*tau))*(1 + erf((-sigma*sigma+t*tau)/(sqrt(2)*tau*sigma)));
+  
+  //y = par[0]*exp(par[1]-par[2]*x[0])*(1 + erf(par[3]+par[4]*x[0]));
+
+  return y;
 }
