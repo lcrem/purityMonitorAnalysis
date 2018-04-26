@@ -19,10 +19,13 @@ string smoothnice[2] = {"", "smooth"};
 
 void plotAll(bool isCathode=true,   bool isSmooth=true);
 
-void getPurity(TGraph *gGK, TGraph *gK, int fieldIndex);
+void getPurity(TGraph *gGK, TGraph *gK, int fieldIndex, double numbers[2]);
 
 void plotAllCathode(){
 
+  
+  gErrorIgnoreLevel = kWarning;
+  
   plotAll(true, true);
   // plotAll(false, true);
   // plotAll(true, false);
@@ -79,10 +82,12 @@ void plotAll(bool isCathode=true,
     
     leg1->AddEntry(gK[ifield], fieldNice[ifield].c_str(), "l");
 
-
+    double numbers[2];
     if (isSmooth){
-      cout << "Getting purity for field : " << fieldNice[ifield] << endl;
-      getPurity(gGK[ifield], gK[ifield], ifield);
+      // cout << "Getting purity for field : " << fieldNice[ifield] << endl;
+      getPurity(gGK[ifield], gK[ifield], ifield, numbers);
+      
+      printf("%20s:  %7.2f ,  %7.2f  \n", fields[ifield].c_str(), numbers[0]*1e3, numbers[1]*1e6);
     }
     
     if (ifield==0){
@@ -105,11 +110,11 @@ void plotAll(bool isCathode=true,
   c->Print(("plots/Allfields_"+chnamenice[isCathode]+smoothnice[isSmooth]+".png").c_str());
   c->Print(("plots/Allfields_"+chnamenice[isCathode]+smoothnice[isSmooth]+".pdf").c_str());
   c->Print(("plots/Allfields_"+chnamenice[isCathode]+smoothnice[isSmooth]+".C"  ).c_str());
-  
+  delete c;
 }
 
 
-void getPurity(TGraph *gGK, TGraph *gK, int ifield){
+void getPurity(TGraph *gGK, TGraph *gK, int ifield, double numbers[2]){
 
   int nGK     = gGK->GetN();
   double *xGK = gGK->GetX();
@@ -178,7 +183,7 @@ void getPurity(TGraph *gGK, TGraph *gK, int ifield){
 
   gStyle->SetOptFit(1);
 // Fit histogram in range defined by function
-  gK->Fit("func","R");
+  gK->Fit("func","RQ");
 
   // cout << func->GetParameter(0) << " " << func->GetParameter(1) << " " << func->GetParameter(2) << " " << func->GetParameter(3) <<  endl;
   double fittedMinK = func->GetMinimum(0.04E-3,0.24E-3);
@@ -198,12 +203,15 @@ void getPurity(TGraph *gGK, TGraph *gK, int ifield){
   
   double fittedDriftTime = fittedMinKtime - fittedKstartTime;
 
-  cout << "Fitted Cathode min " << fittedMinK << endl;
-  cout << "Fitted Cathode min time " << fittedMinKtime << endl;
-  cout << "Fitted Cathode start time " << fittedKstartTime << endl;
-  cout << "Fitted drift time " << fittedDriftTime << endl;
+  // cout << "Fitted Cathode min " << fittedMinK << endl;
+  // cout << "Fitted Cathode min time " << fittedMinKtime << endl;
+  // cout << "Fitted Cathode start time " << fittedKstartTime << endl;
+  // cout << "Fitted drift time " << fittedDriftTime << endl;
 
 
+  numbers[0] = fittedMinK;
+  numbers[1] = fittedDriftTime;
+  
   TLine *lmin = new TLine(fittedKstartTime, -scaleY[1], fittedKstartTime, +scaleY[1]);
   lmin->SetLineStyle(2);
   lmin->Draw();
@@ -218,6 +226,7 @@ void getPurity(TGraph *gGK, TGraph *gK, int ifield){
   c1->Print(Form("plots/Field_%s.pdf", fields[ifield].c_str()));
   c1->Print(Form("plots/Field_%s.C", fields[ifield].c_str()));
 
+  delete c1;
 
 }
 
