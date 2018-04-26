@@ -1,11 +1,22 @@
-
-TGraph *subtractGraphs( TGraph *grA, TGraph *grB) ;
+#include "FFTtools.h"
 
 TGraph *justAverage(Int_t numGraphs, TGraph **grPtrPtr);
+
+TGraph *subtractGraphs( TGraph *grA, TGraph *grB) ;
 
 int addAndAverage(TGraph *avg, TGraph *temp, int fNumInAverage);
 
 TGraph *subtractNoise(TGraph *gsig, TGraph *gnoise);
+
+Double_t fittingFunction(Double_t *x, Double_t *par);
+
+TGraph *smoothGraph(TGraph *g, int nnn);
+
+void zeroBaseline(TGraph *g);
+
+TGraph *getZeroedAverage(Int_t numGraphs, TGraph **graphs);
+
+TGraph *getFilteredAverage(Int_t numGraphs, TGraph **graphs, TGraph *powerSpectrumCorr, double threshold);
 
 TGraph *justAverage(Int_t numGraphs, TGraph **grPtrPtr)
 {
@@ -137,4 +148,120 @@ TGraph *subtractNoise(TGraph *gsig, TGraph *gnoise){
   delete grCor;
   
   return out;
+}
+
+Double_t fittingFunction(Double_t *x, Double_t *par)
+{
+  
+  double t = x[0]*1E6 - par[3];
+  double sigma = par[0];
+  double tau   = par[1];
+  double a     = par[2];
+
+  double y = a*exp((sigma*sigma - 2*t*tau)/(2*tau*tau))*(1 + erf((-sigma*sigma+t*tau)/(sqrt(2)*tau*sigma)));
+  
+  return y;
+}
+
+
+
+TGraph *smoothGraph(TGraph *g, int nnn){
+
+  int n = g->GetN();
+  double *x = g->GetX();
+  double *y = g->GetY();
+  double newy[1000000];
+  
+  for (int i=0; i<nnn; i++){
+    newy[i]=y[i];
+    newy[n-i]=y[n-i];
+  }
+
+  for (int i=nnn; i<(n-nnn); i++){
+    newy[i]=0;
+    
+    for (int j=i-nnn; j<i+nnn; j++){
+      newy[i]+=(y[j]/(nnn+nnn));
+    }
+  }
+
+  TGraph *gnew = new TGraph(n, x, newy);
+
+  return gnew;
+
+}
+
+
+void zeroBaseline(TGraph *g){
+
+
+  double *y = g->GetY();
+  Double_t meanVal=TMath::Mean(2000,g->GetY());
+  for(int ip=0;ip<g->GetN();ip++) {
+    y[ip] -=  meanVal;
+  }
+
+}
+
+
+TGraph *getZeroedAverage(Int_t numGraphs, TGraph **graphs){
+  
+  Double_t newY[1000000];
+  Int_t numPoints;
+  
+  TGraph *graphsZeroed[1000];
+  
+  for (int i=0; i<numGraphs; i++){
+    
+    numPoints = graphs[i]->GetN();
+    Double_t meanVal=TMath::Mean(numPoints,graphs[i]->GetY());
+    for(int ip=0;ip<numPoints;ip++) {
+      newY[ip] = graphs[i]->GetY()[ip] - meanVal;
+    }
+    graphsZeroed[i] = new TGraph(numPoints,graphs[i]->GetX(), newY);
+  }
+
+  
+  TGraph *zeroedAverage = justAverage( numGraphs,
+				       graphsZeroed);
+
+
+  return zeroedAverage;
+}
+
+
+TGraph *getFilteredAverage(Int_t numGraphs, TGraph **graphs, TGraph *powerSpectrumCorr, double threshold){
+
+  int n = powerSpectrumCorr->GetN();
+  double df = powerSpectrumCorr->GetX()[1]-powerSpectrumCorr->GetX()[0];
+  
+  double maxPeak = threshold * TMath::MaxElement(n,powerSpectrumCorr->GetY());
+  int nFilters = 0;
+  double notchmin[1000], notchmax[1000];
+
+  double notchwidth = df/2;
+  
+  for (int i=0; i<n; i++){
+    if (powerSpectrumCorr->GetY()[i]>maxPeak){
+      notchmin[nFilters] = (powerSpectrumCorr->GetX()[i] - notchwidth/2)*1e9;
+      notchmax[nFilters] = (powerSpectrumCorr->GetX()[i] + notchwidth/2)*1e9;
+      cout << nFilters << " " <<   notchmin[nFilters] << " " <<   notchmax[nFilters] << endl;
+      nFilters++;
+    } 
+  }
+
+  
+  TGraph *graphsFiltered[1000];
+  
+  for (int i=0; i<numGraphs; i++){
+    graphsFiltered[i] = FFTtools::multipleSimpleNotchFilters(graphs[i], nFilters, notchmin, notchmax);
+  }
+
+  TGraph *filteredAverage = justAverage(   numGraphs,
+					   graphsFiltered);
+
+
+  return filteredAverage;
+  
+
 }

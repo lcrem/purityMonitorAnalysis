@@ -11,7 +11,7 @@ double ymax = +0.8;
 
 string basename = "2018Apr11liquefaction/Day3_allLiquid/cathodeANDanode/";
 string whichAvg[4] = {"justAvg", "filteredAvg", "zeroedAvg", "fancyFilteredAvg"};
-  
+
 void getSubtraction(string fieldname, string divname){
 
   string outfile = basename + fieldname + "_" + divname + "_signals.root";
@@ -75,3 +75,4 @@ void getSubtraction(string fieldname, string divname){
   }
 
 }
+
