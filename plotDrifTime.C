@@ -4,6 +4,7 @@ string basename="2018Apr11liquefaction/Day3_allLiquid/cathodeANDanode/";
 string fields[]    = {"noField", "K-22GK22_25Vcm", "K-45GK45_50Vcm", "K-135GK135_150Vcm", "K-405GK405_450Vcm", "K-900GK900_1000Vcm", "K-1600GK1100_1500Vcm"};
 string divisions[] = {"200mVdiv", "100mVdiv", "100mVdiv", "100mVdiv", "100mVdiv", "100mVdiv", "100mVdiv"};
 string fieldNice[] = {"No field", "25 V/cm", "50 V/cm", "150 V/cm", "450 V/cm", "1000 V/cm", "1500 V/cm"};
+int  numToAverage[] = { 20, 20, 20, 20, 20, 10, 10, 10};
 double scaleY[2]     = {0.1,      0.2};
 
 
@@ -14,7 +15,7 @@ void getPurity(TGraph *gK, double output[4], int igraph, int ifield);
 
 TGraph *noiseTemplatePS;
 
-void getTheNumbers(int ifield, double dip[2], double drift[2]);
+void getTheNumbers(int ifield, double dip[2], double drift[2], int numToAverage);
 
 void plotDrifTime(){
   
@@ -24,15 +25,13 @@ void plotDrifTime(){
   double drift[2];
 
   for (int ifield=0; ifield<7; ifield++){
-    getTheNumbers(ifield, dip, drift);
-    printf("%15s:  %5.2f +/- %5.2f,  %5.2f +/- %5.2f \n", fields[ifield].c_str(), dip[0], dip[1], drift[0], drift[1]);
+    getTheNumbers(ifield, dip, drift, numToAverage[ifield]);
+    printf("%15s:  -(%5.2f +/- %5.2f),  %5.2f +/- %5.2f \n", fields[ifield].c_str(), dip[0], dip[1], drift[0], drift[1]);
   }
   
 }
 
-void getTheNumbers(int ifield, double dip[2], double drift[2]){
-
-  int numToAverage=10;
+void getTheNumbers(int ifield, double dip[2], double drift[2], int numToAverage){
   
   TGraph *someCathode[1000];
 
@@ -50,8 +49,8 @@ void getTheNumbers(int ifield, double dip[2], double drift[2]){
 
   double thisoutput[4];
 
-  TH1D *hDip   = new TH1D("hDip",   "", 100, 50, 200 );
-  TH1D *hDrift = new TH1D("hDrift", "", 100,  5,  20 );
+  TH1D *hDip   = new TH1D("hDip",   "", 100,  0, 300 );
+  TH1D *hDrift = new TH1D("hDrift", "", 100,  0,  30 );
 
   for (int i=0; i<ntot; i++){
     getPurity(someCathode[i], thisoutput, i, ifield);
@@ -66,13 +65,13 @@ void getTheNumbers(int ifield, double dip[2], double drift[2]){
   hDip->Draw();
   c->Print(Form("plots/HistoDip_%s.png", fields[ifield].c_str()));
   dip[0] = hDip->GetMean();
-  dip[1] = hDip->GetMeanError();
+  dip[1] = hDip->GetRMS();
   TCanvas *c2 = new TCanvas("c2");
   hDrift->SetTitle(";Rising time [#musec];Entries");
   hDrift->Draw();
   c2->Print(Form("plots/HistoRisingTime_%s.png", fields[ifield].c_str()));
   drift[0] = hDrift->GetMean();
-  drift[1] = hDrift->GetMeanError();
+  drift[1] = hDrift->GetRMS();
   
   finOut->Close();
   
@@ -162,7 +161,7 @@ void getPurity(TGraph *gK, double output[4], int igraph, int ifield){
 
   TF1 *func = new TF1("func",fittingFunction,0.04E-3,0.24E-3,4);
 
-  func->SetParameters(2, 40, -0.5, minKtime);
+  func->SetParameters(2, 40, -0.5, 90.);
   func->SetParLimits(0, 1, 20);
   func->SetParLimits(1, 10, 100);
   func->SetParLimits(2, -100, 0);
