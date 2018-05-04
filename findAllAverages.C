@@ -9,8 +9,6 @@ TGraph *graphs[1000];
 
 int fillGraphs(string fname);
 
-TGraph *getFilteredAverage(Int_t numGraphs, TGraph **grPtrPtr, TGraph *noiseTemplate, double threshold);
-
 TGraph *getFancyFilteredAverage(Int_t numGraphs, TGraph **grPtrPtr, TGraph *noiseTemplate, double threshold);
 
 TGraph *getSubtractedAverage(Int_t numGraphs, TGraph **grPtrPtr, TGraph *noiseTemplate);
@@ -20,8 +18,6 @@ TH2D *getPeriodogram(Int_t numGraphs, TGraph **grPtrPtr, TGraph *noiseTemplate);
 TH2D *getVoltsHistogram( Int_t numGraphs, TGraph **grPtrPtr );
 
 TGraph *getAveragePowerSpectrum(Int_t numGraphs, TGraph **graphs);
-
-TGraph *getZeroedAverage(Int_t numGraphs, TGraph **graphs);
 
 void findAllAverages(string filename, bool recreate=false){
 
@@ -95,67 +91,6 @@ int fillGraphs(string filename){
   cout << count << endl;
   return count;
   
-}
-
-TGraph *getZeroedAverage(Int_t numGraphs, TGraph **graphs){
-  
-  Double_t newY[1000000];
-  Int_t numPoints;
-  
-  TGraph *graphsZeroed[1000];
-  
-  for (int i=0; i<numGraphs; i++){
-    
-    numPoints = graphs[i]->GetN();
-    Double_t meanVal=TMath::Mean(numPoints,graphs[i]->GetY());
-    for(int ip=0;ip<numPoints;ip++) {
-      newY[ip] = graphs[i]->GetY()[ip] - meanVal;
-    }
-    graphsZeroed[i] = new TGraph(numPoints,graphs[i]->GetX(), newY);
-  }
-
-  
-  TGraph *zeroedAverage = justAverage( numGraphs,
-				       graphsZeroed);
-
-
-  return zeroedAverage;
-}
-
-TGraph *getFilteredAverage(Int_t numGraphs, TGraph **graphs, TGraph *powerSpectrumCorr, double threshold){
-
-  int n = powerSpectrumCorr->GetN();
-  double df = powerSpectrumCorr->GetX()[1]-powerSpectrumCorr->GetX()[0];
-  
-  double maxPeak = threshold * TMath::MaxElement(n,powerSpectrumCorr->GetY());
-  int nFilters = 0;
-  double notchmin[1000], notchmax[1000];
-
-  double notchwidth = df/2;
-  
-  for (int i=0; i<n; i++){
-    if (powerSpectrumCorr->GetY()[i]>maxPeak){
-      notchmin[nFilters] = (powerSpectrumCorr->GetX()[i] - notchwidth/2)*1e9;
-      notchmax[nFilters] = (powerSpectrumCorr->GetX()[i] + notchwidth/2)*1e9;
-      cout << nFilters << " " <<   notchmin[nFilters] << " " <<   notchmax[nFilters] << endl;
-      nFilters++;
-    } 
-  }
-
-  
-  TGraph *graphsFiltered[1000];
-  
-  for (int i=0; i<numGraphs; i++){
-    graphsFiltered[i] = FFTtools::multipleSimpleNotchFilters(graphs[i], nFilters, notchmin, notchmax);
-  }
-
-  TGraph *filteredAverage = justAverage(   numGraphs,
-					   graphsFiltered);
-
-
-  return filteredAverage;
-  
-
 }
 
 

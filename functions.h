@@ -18,6 +18,8 @@ TGraph *getZeroedAverage(Int_t numGraphs, TGraph **graphs);
 
 TGraph *getFilteredAverage(Int_t numGraphs, TGraph **graphs, TGraph *powerSpectrumCorr, double threshold);
 
+void removeGarbage(TGraph *g);
+
 TGraph *justAverage(Int_t numGraphs, TGraph **grPtrPtr)
 {
   //Assume they are all at same sampling rate
@@ -170,22 +172,20 @@ TGraph *smoothGraph(TGraph *g, int nnn){
   int n = g->GetN();
   double *x = g->GetX();
   double *y = g->GetY();
-  double newy[1000000];
-  
-  for (int i=0; i<nnn; i++){
-    newy[i]=y[i];
-    newy[n-i]=y[n-i];
-  }
+  double newy[20000];
+
+  int count=0;
 
   for (int i=nnn; i<(n-nnn); i++){
     newy[i]=0;
     
     for (int j=i-nnn; j<i+nnn; j++){
-      newy[i]+=(y[j]/(nnn+nnn));
+      newy[count]+=(y[j]/(nnn+nnn));
     }
+    count++;
   }
 
-  TGraph *gnew = new TGraph(n, x, newy);
+  TGraph *gnew = new TGraph(count, x, newy);
 
   return gnew;
 
@@ -196,7 +196,7 @@ void zeroBaseline(TGraph *g){
 
 
   double *y = g->GetY();
-  Double_t meanVal=TMath::Mean(2000,g->GetY());
+  Double_t meanVal=TMath::Mean(200,g->GetY());
   for(int ip=0;ip<g->GetN();ip++) {
     y[ip] -=  meanVal;
   }
@@ -263,5 +263,23 @@ TGraph *getFilteredAverage(Int_t numGraphs, TGraph **graphs, TGraph *powerSpectr
 
   return filteredAverage;
   
+
+}
+
+
+
+void removeGarbage(TGraph *g){
+
+
+  double *y = g->GetY();
+  double deltay = 0;
+  double maxdelta = 0.1*TMath::MaxElement(g->GetN(), g->GetY());
+  for(int ip=2;ip<g->GetN()-1;ip++) {
+    deltay = y[ip] - y[ip-1];
+    if (TMath::Abs(deltay)>maxdelta) {
+      //      cout << "in here " << deltay << " " << maxdelta << endl;
+      y[ip] = y[ip-1];// + maxdelta;
+    }
+  }
 
 }
