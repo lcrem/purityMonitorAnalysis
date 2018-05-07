@@ -61,30 +61,21 @@ string chnamenice[2] = {"anode", "Cathode"};
 double scaleY[2]     = {0.1,      0.1};
 string smoothnice[2] = {"", "smooth"};
 
-void plotAll(bool isCathode=true,   bool isSmooth=true);
+void plotOne(TGraph *gK, int fieldIndex, bool isCathode);
 
-void getPurity(TGraph *gK, int fieldIndex, double numbers[2], bool isCathode);
+void plotTwo(TGraph *gA, TGraph *gK, int fieldIndex);
 
 void plotAllCathode(){
 
-  
+  bool isSmooth = true;
   //gErrorIgnoreLevel = kWarning;
   
-  plotAll(true, true);
-  plotAll(false, true);
-  // plotAll(true, false);
-  // plotAll(false, false);
-
-}
-
-void plotAll(bool isCathode=true,
-	     bool isSmooth=true){
   int nAvgToUse=2;
   
   int numFields = (sizeof(fields)/sizeof(*fields));
 
   TGraph *gA[10];
-  
+  TGraph *gK[10];  
   
   for(int ifield=0; ifield<numFields; ifield++){
     
@@ -92,80 +83,126 @@ void plotAll(bool isCathode=true,
 
     TFile *fin = new TFile(filename.c_str(), "read");
 
-    if (!isCathode) gA[ifield] = (TGraph*)fin->Get((chnamenice[0]+"_"+whichAvg[nAvgToUse]).c_str());
-    else  gA[ifield] = (TGraph*)fin->Get((chnamenice[1]+"_"+whichAvg[nAvgToUse]).c_str());
+    gA[ifield] = (TGraph*)fin->Get((chnamenice[0]+"_"+whichAvg[nAvgToUse]+"_smoothed").c_str());
+    gK[ifield] = (TGraph*)fin->Get((chnamenice[1]+"_"+whichAvg[nAvgToUse]+"_smoothed").c_str());
     
-    if (isSmooth){
-      zeroBaseline(gA[ifield]);
-      //   removeGarbage(gA[ifield]);
-      gA[ifield] = smoothGraph(gA[ifield], 10);
-    }
     
     fin->Close();
   }
   
-  TCanvas *c = new TCanvas("c");
+  TCanvas *c1 = new TCanvas("c1");
+  
+  TCanvas *c2 = new TCanvas("c2");
   
   int icolor = 52;
   
   TLegend *leg1 = new TLegend(0.6, 0.55, 0.89, 0.89);
+
+  char randomtxt[20];
+  
+  double tK, tGK, tGA, tA, t1, t2, t3;
+  double QA, QK, R, purity, purity2;
+  
   
   for(int ifield=0; ifield<numFields; ifield++){
+    
+    
+    string intxtfile = basename +  fields[ifield] + "_" + divisions[ifield] + "_purity.txt";
 
+    ifstream f (intxtfile.c_str());
+    //    f.open();
+    f >> randomtxt >> randomtxt >> tK;
+    f >> randomtxt >> randomtxt >> tGK;
+    f >> randomtxt >> randomtxt >> tGA;
+    f >> randomtxt >> randomtxt >> tA;
+    f >> randomtxt >> randomtxt >> t1;
+    f >> randomtxt >> randomtxt >> t2;
+    f >> randomtxt >> randomtxt >> t3;
+    f >> randomtxt >> randomtxt >> QA;
+    f >> randomtxt >> randomtxt >> QK;
+    f >> randomtxt >> randomtxt >> R;
+    f >> randomtxt >> randomtxt >> purity;
+    f >> randomtxt >> randomtxt >> purity2;
 
-    double numbers[2];
-    if (isSmooth){
-      getPurity(gA[ifield], ifield, numbers, isCathode);
-      
-      // gA[ifield] = FFTtools::translateGraph(gA[ifield], -numbers[1]);
-      printf("%20s:  %7.2f ,  %7.2f  \n", fields[ifield].c_str(), numbers[0]*1e3, numbers[1]*1e6);
-    }
+    printf("tK     : %12.4e \n",  tK  );
+    printf("tGK    : %12.4e \n",  tGK );
+    printf("tGA    : %12.4e \n",  tGA );
+    printf("tA     : %12.4e \n",  tA  );
+    printf("t1     : %12.4e \n",  t1  );
+    printf("t2     : %12.4e \n",  t2  );
+    printf("t3     : %12.4e \n",  t3  );
+    printf("QA     : %12.4e \n",  QA  );
+    printf("QK     : %12.4e \n",  QK  );
+    printf("R      : %12.4e \n",  R   );
+    printf("purity : %12.4e \n",  purity  );
+    printf("purity2: %12.4e \n",  purity2 );
+
+    f.close();
+
     
     gA[ifield]->SetLineColor(colors[ifield]) ;
+    gK[ifield]->SetLineColor(colors[ifield]) ;
 
     gA[ifield]->SetLineWidth(2);
+    gK[ifield]->SetLineWidth(2);
     
-    if (!isCathode){
-      gA[ifield]->GetYaxis()->SetRangeUser(-0.07  , 0.07);
-      gA[ifield]->GetXaxis()->SetRangeUser(0.00005, 0.0015);
-    } else {
-      gA[ifield]->GetYaxis()->SetRangeUser(-0.07  , 0.07);
-      gA[ifield]->GetXaxis()->SetRangeUser(-0.00005, 0.001);
+    gA[ifield]->GetYaxis()->SetRangeUser(-0.07  , 0.07);
+    gA[ifield]->GetXaxis()->SetRangeUser(0.00005, 0.0015);
+    gK[ifield]->GetYaxis()->SetRangeUser(-0.07  , 0.07);
+    gK[ifield]->GetXaxis()->SetRangeUser(-0.00005, 0.001);
       
+      
+    if (isSmooth){
+      plotOne(gA[ifield], ifield, false);
+      plotOne(gK[ifield], ifield, true);
+      plotTwo(gA[ifield], gK[ifield], ifield);
       
     }
     
     leg1->AddEntry(gA[ifield], fieldNice[ifield].c_str(), "l");
-    
+
     if (ifield==0){
-      c->cd();
-      gA[ifield]->SetTitle(Form("%s;Time [s];Amplitude [V]", chnamenice[isCathode].c_str()));
+      c1->cd();
+      gA[ifield]->SetTitle(Form("%s;Time [s];Amplitude [V]", chnamenice[0].c_str()));
       gA[ifield]->Draw("Al");
+      c2->cd();
+      gK[ifield]->SetTitle(Form("%s;Time [s];Amplitude [V]", chnamenice[1].c_str()));
+      gK[ifield]->Draw("Al");
     }else{
-      c->cd();
+      c1->cd();
       gA[ifield]->Draw("l");
+      c2->cd();
+      gK[ifield]->Draw("l");
     }
     icolor+=10;
+
+
   }
-  
+  c1->cd();
+  leg1->Draw();
+  c2->cd();
   leg1->Draw();
 
 
-  c->Print(("plots/Allfields_"+chnamenice[isCathode]+smoothnice[isSmooth]+".png").c_str());
-  c->Print(("plots/Allfields_"+chnamenice[isCathode]+smoothnice[isSmooth]+".pdf").c_str());
-  c->Print(("plots/Allfields_"+chnamenice[isCathode]+smoothnice[isSmooth]+".C"  ).c_str());
-  // delete c;
+  c1->Print((basename+"/plots/Allfields_"+chnamenice[0]+smoothnice[isSmooth]+".png").c_str());
+  c1->Print((basename+"/plots/Allfields_"+chnamenice[0]+smoothnice[isSmooth]+".pdf").c_str());
+  c1->Print((basename+"/plots/Allfields_"+chnamenice[0]+smoothnice[isSmooth]+".C"  ).c_str());
+
+  c2->Print((basename+"/plots/Allfields_"+chnamenice[1]+smoothnice[isSmooth]+".png").c_str());
+  c2->Print((basename+"/plots/Allfields_"+chnamenice[1]+smoothnice[isSmooth]+".pdf").c_str());
+  c2->Print((basename+"/plots/Allfields_"+chnamenice[1]+smoothnice[isSmooth]+".C"  ).c_str());
+ 
 }
 
 
-void getPurity(TGraph *gK, int ifield, double numbers[2], bool isCathode){
+void plotOne(TGraph *gK, int ifield, bool isCathode){
 
   int nK      = gK->GetN();
   double *xK  = gK->GetX();
   double *yK  = gK->GetY();
 
 
-  TCanvas *c1 = new TCanvas("c1");
+  TCanvas *c3 = new TCanvas("c3");
   
   gK->SetTitle(Form("%s;Time [s];Amplitude [V]", fieldNice[ifield].c_str()));
   gK->Draw("Al");
@@ -204,83 +241,137 @@ void getPurity(TGraph *gK, int ifield, double numbers[2], bool isCathode){
   double fittedKtime;
   double fittedKstartTime = 0;
 
-  if (fit){
+  // if (fit){
     
 
-    gStyle->SetOptFit(1);
-    // Fit histogram in range defined by function
-    gK->Fit("func","RQ");
+  //   gStyle->SetOptFit(1);
+  //   // Fit histogram in range defined by function
+  //   gK->Fit("func","RQ");
 
-    cout << "I used a fitting function and these are the parameters I got " << endl;
-    cout << func->GetParameter(0) << " " << func->GetParameter(1) << " " << func->GetParameter(2) << " " << func->GetParameter(3) <<  endl;
+  //   cout << "I used a fitting function and these are the parameters I got " << endl;
+  //   cout << func->GetParameter(0) << " " << func->GetParameter(1) << " " << func->GetParameter(2) << " " << func->GetParameter(3) <<  endl;
     
-    if (isCathode){
-      fittedKtime = func->GetMinimumX(xmin, xmax);
-      fittedK = func->GetMinimum(xmin, xmax);
-    } else{
-      fittedKtime = func->GetMaximumX(xmin, xmax);
-      fittedK = func->GetMaximum(xmin, xmax);
-    }
-    double tempx, tempy;
-    for (int ip=0; ip<nK; ip++){
-      tempx = xK[ip];
-      tempy = func->Eval(xK[ip]);
-      if (tempy>0.01*TMath::Abs(fittedK)){
-	// cout << ip << " " << tempx << " " << tempy << " " << endl;
-	fittedKstartTime = tempx;
-      break;
-      }
-    }
-
-    
-  } else {
+  //   if (isCathode){
+  //     fittedKtime = func->GetMinimumX(xmin, xmax);
+  //     fittedK = func->GetMinimum(xmin, xmax);
+  //   } else{
+  //     fittedKtime = func->GetMaximumX(xmin, xmax);
+  //     fittedK = func->GetMaximum(xmin, xmax);
+  //   }
+  //   double tempx, tempy;
+  //   for (int ip=0; ip<nK; ip++){
+  //     tempx = xK[ip];
+  //     tempy = func->Eval(xK[ip]);
+  //     if (tempy>0.01*TMath::Abs(fittedK)){
+  // 	// cout << ip << " " << tempx << " " << tempy << " " << endl;
+  // 	fittedKstartTime = tempx;
+  //     break;
+  //     }
+  //   }
 
     
-    int loc;
-    if (isCathode){
-      loc = TMath::LocMin(nK,yK);
-    } else{
-      loc = TMath::LocMax(nK,yK);
-    }
-    fittedKtime = xK[loc];
-    fittedK = yK[loc];
-    cout << chnamenice[isCathode] << " " << loc << " " << fittedKtime << " " << fittedK << endl;
+  // } else {
 
-    TF1 *straightLine = new TF1("straightLine", "[0]+[1]*x");
-    gK->Fit("straightLine", "RQ0", "", fittedKtime-0.01e-3, fittedKtime);
-    fittedKstartTime = -straightLine->GetParameter(0)/straightLine->GetParameter(1);
+  //   // int loc;
+  //   // if (isCathode){
+  //   //   loc = TMath::LocMin(nK,yK);
+  //   // } else{
+  //   //   loc = TMath::LocMax(nK,yK);
+  //   // }
+  //   // fittedKtime = xK[loc];
+  //   // fittedK = yK[loc];
+  //   // cout << chnamenice[isCathode] << " " << loc << " " << fittedKtime << " " << fittedK << endl;
+
+  //   // TF1 *straightLine = new TF1("straightLine", "[0]+[1]*x");
+  //   // gK->Fit("straightLine", "RQ0", "", fittedKtime-0.01e-3, fittedKtime);
+  //   // fittedKstartTime = -straightLine->GetParameter(0)/straightLine->GetParameter(1);
     
-  }
+  // }
   
 
   
-  double fittedDriftTime = fittedKtime - fittedKstartTime;
+  // double fittedDriftTime = fittedKtime - fittedKstartTime;
 
-  cout << "Fitted Cathode  " << fittedK << endl;
-  cout << "Fitted Cathode  time " << fittedKtime << endl;
-  cout << "Fitted Cathode start time " << fittedKstartTime << endl;
-  cout << "Fitted drift time " << fittedDriftTime << endl;
+  // cout << "Fitted Cathode  " << fittedK << endl;
+  // cout << "Fitted Cathode  time " << fittedKtime << endl;
+  // cout << "Fitted Cathode start time " << fittedKstartTime << endl;
+  // cout << "Fitted drift time " << fittedDriftTime << endl;
 
 
-  numbers[0] = fittedK;
-  numbers[1] = fittedDriftTime;
+  // numbers[0] = fittedK;
+  // numbers[1] = fittedDriftTime;
   
-  TLine *lmin = new TLine(fittedKstartTime, -scaleY[1], fittedKstartTime, +scaleY[1]);
-  lmin->SetLineStyle(2);
-  lmin->Draw();
+  // TLine *lmin = new TLine(fittedKstartTime, -scaleY[1], fittedKstartTime, +scaleY[1]);
+  // lmin->SetLineStyle(2);
+  // lmin->Draw();
 
-  TLine *lmax = new TLine(fittedKtime, -scaleY[1], fittedKtime, +scaleY[1]);
-  lmax->SetLineStyle(2);
-  lmax->Draw();
+  // TLine *lmax = new TLine(fittedKtime, -scaleY[1], fittedKtime, +scaleY[1]);
+  // lmax->SetLineStyle(2);
+  // lmax->Draw();
 
   
   
-  c1->Print(Form("plots/Field_%s.png", fields[ifield].c_str()));
-  c1->Print(Form("plots/Field_%s.pdf", fields[ifield].c_str()));
-  c1->Print(Form("plots/Field_%s.C", fields[ifield].c_str()));
+  c3->Print(Form("%s/plots/Field%s_%s.png", basename.c_str(), chnamenice[isCathode].c_str(), fields[ifield].c_str()));
+  c3->Print(Form("%s/plots/Field%s_%s.pdf", basename.c_str(), chnamenice[isCathode].c_str(), fields[ifield].c_str()));
+  c3->Print(Form("%s/plots/Field%s_%s.C",   basename.c_str(), chnamenice[isCathode].c_str(), fields[ifield].c_str()));
 
-  delete c1;
+  delete c3;
+  delete func;
+  delete l0;
+  
+}
 
+
+
+
+
+
+void plotTwo(TGraph *gA, TGraph *gK, int ifield){
+
+
+  TCanvas *c3 = new TCanvas("c3");
+  
+  gK->SetTitle(Form("%s;Time [s];Amplitude [V]", fieldNice[ifield].c_str()));
+  gK->Draw("Al");
+  gA->Draw("l");
+
+  double xmin = gK->GetXaxis()->GetBinLowEdge(0);
+  double xmax = gK->GetXaxis()->GetBinUpEdge(gK->GetN());
+
+  TLine *l0 = new TLine(xmin, 0, xmax, 0);
+  l0->SetLineStyle(2);
+  l0->Draw();
+  
+  
+  
+  // double fittedDriftTime = fittedKtime - fittedKstartTime;
+
+  // cout << "Fitted Cathode  " << fittedK << endl;
+  // cout << "Fitted Cathode  time " << fittedKtime << endl;
+  // cout << "Fitted Cathode start time " << fittedKstartTime << endl;
+  // cout << "Fitted drift time " << fittedDriftTime << endl;
+
+
+  // numbers[0] = fittedK;
+  // numbers[1] = fittedDriftTime;
+  
+  // TLine *lmin = new TLine(fittedKstartTime, -scaleY[1], fittedKstartTime, +scaleY[1]);
+  // lmin->SetLineStyle(2);
+  // lmin->Draw();
+
+  // TLine *lmax = new TLine(fittedKtime, -scaleY[1], fittedKtime, +scaleY[1]);
+  // lmax->SetLineStyle(2);
+  // lmax->Draw();
+
+  
+  
+  c3->Print(Form("%s/plots/Field_%s.png", basename.c_str(), fields[ifield].c_str()));
+  c3->Print(Form("%s/plots/Field_%s.pdf", basename.c_str(), fields[ifield].c_str()));
+  c3->Print(Form("%s/plots/Field_%s.C",   basename.c_str(), fields[ifield].c_str()));
+
+  delete c3;
+  delete l0;
+  
 }
 
 
