@@ -61,24 +61,25 @@ string chnamenice[2] = {"anode", "Cathode"};
 double scaleY[2]     = {0.1,      0.1};
 string smoothnice[2] = {"", "smooth"};
 
+string plots[] = {"t1", "t2", "t3", "QA", "QK", "R", "purity", "purity2"};
+
 void plotPurityVSfield(){
 
 
   int numFields = (sizeof(fields)/sizeof(*fields));
-
+  int nplots    = (sizeof(plots)/sizeof(*plots));
+  
   char randomtxt[20];
   
   double tK, tGK, tGA, tA, t1, t2, t3;
   double QA, QK, R, purity, purity2;
 
-  TGraph *gt1 = new TGraph (numFields);
-  TGraph *gt2 = new TGraph (numFields);
-  TGraph *gt3 = new TGraph (numFields);
-  TGraph *gQA = new TGraph (numFields);
-  TGraph *gQK = new TGraph (numFields);
-  TGraph *gR  = new TGraph (numFields);
-  TGraph *gpurity = new TGraph (numFields);
-
+  TGraph *graph[20];
+  
+  for (int i=0; i<nplots; i++){
+    graph[i] = new TGraph(numFields);
+  }
+  
   
   for(int ifield=0; ifield<numFields; ifield++){
     
@@ -115,43 +116,28 @@ void plotPurityVSfield(){
 
     f.close();
 
-    gt1->SetPoint(ifield, ifield, t1);
-    gt2->SetPoint(ifield, ifield, t2);
-    gt3->SetPoint(ifield, ifield, t3);
-    gQA->SetPoint(ifield, ifield, QA);
-    gQK->SetPoint(ifield, ifield, QK);
-    gR->SetPoint(ifield, ifield, R);
-    gpurity->SetPoint(ifield, ifield, purity);
 
+    graph[0]->SetPoint(ifield, ifield, t1);
+    graph[1]->SetPoint(ifield, ifield, t2);
+    graph[2]->SetPoint(ifield, ifield, t3);
+    graph[3]->SetPoint(ifield, ifield, QA);
+    graph[4]->SetPoint(ifield, ifield, QK);
+    graph[5]->SetPoint(ifield, ifield, R);
+    graph[6]->SetPoint(ifield, ifield, purity);
+    graph[7]->SetPoint(ifield, ifield, purity2);
+    
   }
 
   TCanvas *c1 = new TCanvas("c1");
-  gt1->SetTitle("t1;Field;t1");
-  gt1->Draw("Al");
-  c1->Print((basename+"/plots/Allfields_t1.png").c_str());
-  
-  gt2->SetTitle("t2;Field;t");
-  gt2->Draw("Al");
-  c1->Print((basename+"/plots/Allfields_t2.png").c_str());
 
-  gt3->SetTitle("t3;Field;t3");
-  gt3->Draw("Al");
-  c1->Print((basename+"/plots/Allfields_t3.png").c_str());
-
-  gQA->SetTitle("QA;Field;QA");
-  gQA->Draw("Al");
-  c1->Print((basename+"/plots/Allfields_QA.png").c_str());
-
-  gQK->SetTitle("QK:Field;QK");
-  gQK->Draw("Al");
-  c1->Print((basename+"/plots/Allfields_QK.png").c_str());
+  for (int ip=0; ip<nplots; ip++){
+    graph[ip]->SetTitle(Form("%s;;%s", plots[ip].c_str(), plots[ip].c_str()));
+    graph[ip]->GetHistogram()->GetXaxis()->Set(numFields, -0.5, numFields-0.5);
+    for (int i=1;i<=numFields;i++) graph[ip]->GetHistogram()->GetXaxis()->SetBinLabel(i,fieldNice[i-1].c_str());
+    graph[ip]->Draw("Al text");
+    c1->Print((basename+"/plots/Allfields_"+plots[ip]+".png").c_str());
+  }
   
-  gR->SetTitle("R;Field;R");
-  gR->Draw("Al");
-  c1->Print((basename+"/plots/Allfields_R.png").c_str());
-  
-  gpurity->SetTitle("Purity;Field;Purity");
-  gpurity->Draw("Al");
-  c1->Print((basename+"/plots/Allfields_purity.png").c_str());
+
   
 }
