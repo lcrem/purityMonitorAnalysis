@@ -12,6 +12,9 @@ double ymax = +0.8;
 //string basename = "2018Apr11liquefaction/Day3_allLiquid/cathodeANDanode/";
 string whichAvg[4] = {"justAvg", "filteredAvg", "zeroedAvg", "fancyFilteredAvg"};
 
+
+double getCorrection(double fittedDriftTime, double tauelec, double taulife);
+
 void getSubtraction(string basename, string fieldname, string divname){
 
   string outfile    = basename + fieldname + "_" + divname + "_signals.root";
@@ -180,22 +183,22 @@ void getSubtraction(string basename, string fieldname, string divname){
 	
 
 
-	TF1 *exponential;
-	if (ich==0)  exponential = new TF1("exponential", "exp([0]+[1]*x[0])");
-	else exponential = new TF1("exponential", "-exp([0]+[1]*x[0])");
-	gdiff2->Fit("exponential", "RQ", "", fittedKtime, gdiff2->GetX()[gdiff2->GetN()-1]);
+	// TF1 *exponential;
+	// if (ich==0)  exponential = new TF1("exponential", "exp([0]+[1]*x[0])");
+	// else exponential = new TF1("exponential", "-exp([0]+[1]*x[0])");
+	// gdiff2->Fit("exponential", "RQ", "", fittedKtime, gdiff2->GetX()[gdiff2->GetN()-1]);
 
-	double tauelec = -1./exponential->GetParameter(1);
-	cout << "Tau electronics : " << tauelec << endl;
+	// double tauelec = -1./exponential->GetParameter(1);
+	// cout << "Tau electronics : " << tauelec << endl;
 
-	double taulife = 0.003;
+	// double taulife = 0.003;
 
-	double correction = (1.-exp(-(fittedDriftTime)*(1./tauelec + 1./taulife)))/(fittedDriftTime*(1./tauelec + 1./taulife));
+	// double correction = (1.-exp(-(fittedDriftTime)*(1./tauelec + 1./taulife)))/(fittedDriftTime*(1./tauelec + 1./taulife));
 
-	cout << "Correction : " << correction << endl;
+	// cout << "Correction : " << correction << endl;
 
-	if (ich==0) fittedK*=correction;
-	else fittedK/=correction;
+	// if (ich==0) fittedK*=correction;
+	// else fittedK/=correction;
 	
 	finalNumbers[ich][0] = fittedK;
 	finalNumbers[ich][1] = fittedKstartTime;
@@ -234,10 +237,34 @@ void getSubtraction(string basename, string fieldname, string divname){
   
   QA = finalNumbers[0][0];
   QK = finalNumbers[1][0];
-  R =  TMath::Abs(QA/QK);
-  if (R<1){
-    purity = (1/TMath::Abs(TMath::Log(R)))*(t2 + 0.5*(t1+t3));
 
+  double tauelec = 0.00012;
+  double taulife = 0.003;
+  double Kcorrection;
+  double Acorrection;
+  double newQK = QK;
+  double newQA = QA;
+  
+  if (R<1){
+
+    int count = 0;
+    while(1){
+      Kcorrection = getCorrection(t1, tauelec, taulife);
+      Acorrection = getCorrection(t3, tauelec, taulife);
+
+      newQK = QK*Kcorrection;
+      newQA = QA*Acorrection;
+    
+      R =  TMath::Abs(newQA/newQK);
+
+      purity = (1/TMath::Abs(TMath::Log(R)))*(t2 + 0.5*(t1+t3));
+
+      if (TMath::Abs(purity-taulife)<0.0000001) break;
+      taulife=purity;
+      count++;
+    }
+    cout << "Number of iterations : " << count << endl;
+    
     TF1 f ("Purity function", "([1]/[3])*(TMath::SinH([3]/(2*x))/TMath::SinH([1]/(2*x)))*TMath::Exp(-([2]+0.5*([1]+[3]))) - [0]", -0.1, 0.1);
     f.SetParameters(R, t1, t2, t3);
 
@@ -291,3 +318,9 @@ void getSubtraction(string basename, string fieldname, string divname){
   fclose (pFile);
 }
 
+
+double getCorrection(double fittedDriftTime, double tauelec, double taulife){
+
+  return (1.-exp(-(fittedDriftTime)*(1./tauelec + 1./taulife)))/(fittedDriftTime*(1./tauelec + 1./taulife));
+
+}
