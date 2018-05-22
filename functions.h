@@ -188,7 +188,7 @@ Double_t ICARUSpolynomial(Double_t E)
   Double_t w6 = 0.317;
 
   Double_t K1 = p0 + p1*Et + p2*Et*Et + p3*Et*Et*Et + p4*Et*Et*Et*Et + p5*Et*Et*Et*Et*Et;
-  Double_t K2 = ( w1*(T-T0) + 1 )*( w3*Et*TMath::Log10(1+w4/Et) + w5*TMath::Power(Et,w6) ) + w2*(T-T0);
+  Double_t K2 = ( w1*(T-T0) + 1 )*( w3*Et*TMath::Log(1+w4/Et) + w5*TMath::Power(Et,w6) ) + w2*(T-T0);
 
   Double_t vE = (p0 + p1*E + p2*E*E + p3*E*E*E + p4*E*E*E*E + p5*E*E*E*E*E)*(K2/K1);
 
