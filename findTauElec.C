@@ -132,9 +132,9 @@ void findTauElec(string basename, string fieldname, string divname, string pream
 	func->SetParName(0, "Q (pC)");
 	//	func->SetParLimits(0, 1e-6, 2e-6);
 	func->SetParName(1, "C (pF)");
-	// func->SetParLimits(1, 0.1, 0.2);
+	//func->SetParLimits(1, 0.1, 0.2);
 	func->SetParName(2, "R (M#Omega)");
-	// func->SetParLimits(2, 490, 510);
+	//func->SetParLimits(2, 490, 510);
 	func->SetParName(3, "t_0 (#mus)");
 	gdiff2->Fit("func","R");
 	func->Draw("same");
@@ -172,9 +172,13 @@ void findTauElec(string basename, string fieldname, string divname, string pream
 Double_t greenFunction(Double_t *x, Double_t *par)
 {
   
+  // x[0] is in seconds, so we need to conver par[3] from musec to sec
   double t = x[0] - par[3]*1e-6;
+  // 
   double Q = par[0]*1e-12;
+  // par[1] is in pF so we need to convert it in Farad
   double C = par[1]*1e-12;
+  // par[2] is in MOhm so we need to convert it in Ohm
   double R = par[2]*1e6;
 
   
@@ -183,7 +187,7 @@ Double_t greenFunction(Double_t *x, Double_t *par)
   else heaviside = 1;
   
   //double y = a*exp((sigma*sigma - 2*t*tau)/(2*tau*tau))*(1 + erf((-sigma*sigma+t*tau)/(sqrt(2)*tau*sigma)));
-  double y = (-Q/C)*exp(-t/(R*C))*heaviside;//*(1+erf(t));//(-sigma*sigma+t*tau)/(sqrt(2)*tau*sigma)));
+  double y = (-Q/C)*exp(-t/(R*C))*heaviside;//*(1+erf(t*1.e6));//(-sigma*sigma+t*tau)/(sqrt(2)*tau*sigma)));
   
   return y;
 }
