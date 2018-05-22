@@ -12,6 +12,7 @@ double ymax = +0.8;
 //string basename = "2018Apr11liquefaction/Day3_allLiquid/cathodeANDanode/";
 string whichAvg[4] = {"justAvg", "filteredAvg", "zeroedAvg", "fancyFilteredAvg"};
 
+void getFields (string fieldname, double fields[3]);
 
 double getCorrection(double fittedDriftTime, double tauelec, double taulife);
 
@@ -19,6 +20,10 @@ void getSubtraction(string basename, string fieldname, string divname){
 
   string outfile    = basename + fieldname + "_" + divname + "_signals.root";
   string outtxtfile = basename + fieldname + "_" + divname + "_purity.txt";
+
+  double fields[3];
+  getFields (fieldname, fields);
+  
   
   cout << "Output file is " << outfile << endl;
   
@@ -137,7 +142,10 @@ void getSubtraction(string basename, string fieldname, string divname){
 
 	int loc;
 	double peak;
-	if (ich==1){
+	double icarusTime;
+	
+	if (ich==1){ // Cathode
+	  icarusTime = 0.05/ICARUSpolynomial(fields[0]);
 	  peak = 99999;
 	  // loc = TMath::LocMin(nK,yK);
 	  for (int ip=nK-2; ip>0; ip--){
@@ -151,7 +159,8 @@ void getSubtraction(string basename, string fieldname, string divname){
 	  fittedK = yK[loc];
 
 	  fittedKstartTime = 0.;
-	} else{
+	} else { //anode
+	  icarusTime = 0.05/ICARUSpolynomial(fields[2]);
 	  //loc = TMath::LocMax(nK,yK);
 	  peak = -99999.;
 	  for (int ip=nK-2; ip>0; ip--){
@@ -164,6 +173,8 @@ void getSubtraction(string basename, string fieldname, string divname){
 	  
 	  fittedKtime = xK[loc];
 	  fittedK = yK[loc];
+
+
 	  
 	  TF1 *straightLine = new TF1("straightLine", "[0]+[1]*x");
 	  gdiff2->Fit("straightLine", "RQ0", "", fittedKtime-0.05e-3, fittedKtime);
@@ -175,6 +186,8 @@ void getSubtraction(string basename, string fieldname, string divname){
 	
     
 	double fittedDriftTime = fittedKtime - fittedKstartTime;
+
+	cout << " Expected vs measured time " << icarusTime << " " << fittedDriftTime << endl;
 
 	// cout << "Fitted Cathode  " << fittedK << endl;
 	// cout << "Fitted Cathode  time " << fittedKtime << endl;
@@ -238,7 +251,29 @@ void getSubtraction(string basename, string fieldname, string divname){
   QA = finalNumbers[0][0];
   QK = finalNumbers[1][0];
 
-  double tauelec = 0.00012;
+  double tauelec_preampA = 50*1e-6;
+  double tauelec_preampB = 90*1e-6;
+  double tauelecK, tauelecA;
+  double gain_preampA    = 10.;
+  double gain_preampB    =  8.;
+
+  if (divname.find("ampSwitch") != std::string::npos){
+    cout << "AMP SWITCHED !!!!" << endl;
+    tauelecK = tauelec_preampA;
+    tauelecA = tauelec_preampB;
+
+    QA /= gain_preampB;
+    QK /= gain_preampA;
+    
+  }else{
+
+    tauelecK = tauelec_preampB;
+    tauelecA = tauelec_preampA;
+
+    QA /= gain_preampA;
+    QK /= gain_preampB;
+  }
+  
   double taulife = 0.003;
   double Kcorrection;
   double Acorrection;
@@ -249,17 +284,18 @@ void getSubtraction(string basename, string fieldname, string divname){
 
     int count = 0;
     while(1){
-      Kcorrection = getCorrection(t1, tauelec, taulife);
-      Acorrection = getCorrection(t3, tauelec, taulife);
+      
+      Kcorrection = getCorrection(t1, tauelecK, taulife);
+      Acorrection = getCorrection(t3, tauelecA, taulife);
 
-      newQK = QK*Kcorrection;
-      newQA = QA*Acorrection;
+      newQK = QK/Kcorrection;
+      newQA = QA/Acorrection;
     
       R =  TMath::Abs(newQA/newQK);
 
       purity = (1/TMath::Abs(TMath::Log(R)))*(t2 + 0.5*(t1+t3));
 
-      if (TMath::Abs(purity-taulife)<0.0000001) break;
+      if (TMath::Abs(purity-taulife)<0.01e-6) break;
       taulife=purity;
       count++;
     }
@@ -323,4 +359,25 @@ double getCorrection(double fittedDriftTime, double tauelec, double taulife){
 
   return (1.-exp(-(fittedDriftTime)*(1./tauelec + 1./taulife)))/(fittedDriftTime*(1./tauelec + 1./taulife));
 
+}
+
+
+void getFields (string fieldname, double fields[3]){
+
+  string s = fieldname.substr(fieldname.find("_") + 1) ;
+
+  std::string ext("Vcm");
+  if ( s != ext &&
+       s.size() > ext.size() &&
+       s.substr(s.size() - ext.size()) == "Vcm" )
+    {
+      // if so then strip them off
+      s = s.substr(0, s.size() - ext.size());
+    }
+  std::replace( s.begin(), s.end(), '.', ' ');
+  
+  std::stringstream ss(s);
+  ss >> fields[0] >> fields[1] >> fields[2];
+
+  cout << " The three fields are " << fields[0] << " " << fields[1] << " " << fields[2] << " V/cm" << endl;
 }

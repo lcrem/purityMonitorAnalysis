@@ -165,8 +165,41 @@ Double_t fittingFunction(Double_t *x, Double_t *par)
   return y;
 }
 
+Double_t ICARUSpolynomial(Double_t E)
+{
 
+  // transform E in kV/cm
+  E*=1e-3;
+  
+  Double_t Et = 0.5;
+  Double_t T  = 89;      // Kelvin
+  Double_t T0 = 90.371;  // Kelvin
+  Double_t p0 = -0.03229;
+  Double_t p1 = 6.231;
+  Double_t p2 = -10.62;
+  Double_t p3 = 12.74;
+  Double_t p4 = -9.112;
+  Double_t p5 = 2.83;
+  Double_t w1 = -0.01481;
+  Double_t w2 = -0.0075;
+  Double_t w3 = 0.141;
+  Double_t w4 = 12.4;
+  Double_t w5 = 1.627;
+  Double_t w6 = 0.317;
 
+  Double_t K1 = p0 + p1*Et + p2*Et*Et + p3*Et*Et*Et + p4*Et*Et*Et*Et + p5*Et*Et*Et*Et*Et;
+  Double_t K2 = ( w1*(T-T0) + 1 )*( w3*Et*TMath::Log10(1+w4/Et) + w5*TMath::Power(Et,w6) ) + w2*(T-T0);
+
+  Double_t vE = (p0 + p1*E + p2*E*E + p3*E*E*E + p4*E*E*E*E + p5*E*E*E*E*E)*(K2/K1);
+
+  // convert vE from mm/us to m/s
+
+  vE *= (1e-3/1e-6);
+  
+  return vE;
+   
+
+}
 TGraph *smoothGraph(TGraph *g, int nnn){
 
   int n = g->GetN();
