@@ -9,8 +9,6 @@ double xmax = 0.015E-3;
 double ymin = -0.8;
 double ymax = +0.8;
 
-Double_t greenFunction(Double_t *x, Double_t *par);
-
 //string basename = "2018Apr11liquefaction/Day3_allLiquid/cathodeANDanode/";
 string whichAvg[4] = {"justAvg", "filteredAvg", "zeroedAvg", "fancyFilteredAvg"};
 
@@ -168,26 +166,3 @@ void findTauElec(string basename, string fieldname, string divname, string pream
 }
 
 
-
-Double_t greenFunction(Double_t *x, Double_t *par)
-{
-  
-  // x[0] is in seconds, so we need to conver par[3] from musec to sec
-  double t = x[0] - par[3]*1e-6;
-  // 
-  double Q = par[0]*1e-12;
-  // par[1] is in pF so we need to convert it in Farad
-  double C = par[1]*1e-12;
-  // par[2] is in MOhm so we need to convert it in Ohm
-  double R = par[2]*1e6;
-
-  
-  double heaviside;
-  if (t<0) heaviside=0;
-  else heaviside = 1;
-  
-  //double y = a*exp((sigma*sigma - 2*t*tau)/(2*tau*tau))*(1 + erf((-sigma*sigma+t*tau)/(sqrt(2)*tau*sigma)));
-  double y = (-Q/C)*exp(-t/(R*C))*heaviside;//*(1+erf(t*1.e6));//(-sigma*sigma+t*tau)/(sqrt(2)*tau*sigma)));
-  
-  return y;
-}

@@ -21,9 +21,15 @@ void getSubtraction(string basename, string fieldname, string divname){
   string outfile    = basename + fieldname + "_" + divname + "_signals.root";
   string outtxtfile = basename + fieldname + "_" + divname + "_purity.txt";
 
-  double fields[3];
+  double fields[3], distance[3], tTheory[3];
   getFields (fieldname, fields);
-  
+  distance[0] = 0.018; // 1.8cm
+  distance[1] = 0.050; // 1.0cm
+  distance[2] = 0.010; // 1.0cm
+  for (int i=0; i<3; i++){
+    tTheory[i] = distance[i]/ICARUSpolynomial(fields[i]);
+    cout << distance[i] << " " << fields[i] << " " << tTheory[i] << endl;
+  }
   
   cout << "Output file is " << outfile << endl;
   
@@ -59,6 +65,7 @@ void getSubtraction(string basename, string fieldname, string divname){
   for (int iavg=0; iavg<4; iavg++){
     for (int ich=0; ich<2; ich++){
       string f1 = basename + fieldname + "_FibreIn_" + divname + "." + chname[ich] +".traces_averages.root";
+      //      string f2 = basename + fieldname + "_FibreIn_" + divname + "."+ chname[(ich==0)*1] + ".traces_averages.root";
       string f2 = basename + fieldname + "_FibreOut_" + divname + "."+ chname[ich] + ".traces_averages.root";
       
       TFile *file1 = new TFile(f1.c_str(), "read");
@@ -93,8 +100,22 @@ void getSubtraction(string basename, string fieldname, string divname){
       double *x = g1->GetX();
       double *y1 = g1->GetY();
       double *y2 = g2->GetY();
+
+      // TF1 ftemp1("ftemp1",[&](double *x, double *){ return g1->Eval(x[0]); },-0.1E-3, 0.3E-3,0);
+      // double integral1 = TMath::Abs(ftemp1.Integral(0., 0.3E-3));
+      // TF1 ftemp2("ftemp2",[&](double *x, double *){ return g2->Eval(x[0]); },-0.1E-3, 0.3E-3,0);
+      // double integral2 = TMath::Abs(ftemp2.Integral(0., 0.3E-3));
+      double dt = x[1] - x[0];
+      double integral1 = g1->Integral(0, 0.2E-3/dt);
+      double integral2 = g2->Integral(0, 0.2E-3/dt);
+      double renorm = integral1/integral2;
+      if (ich==1) renorm=1;
+      cout << "Integral " << integral1 << " " << integral2 << endl;
+      if (renorm>10) renorm=1;
+      renorm=1;
+      
       for (int i=0; i<N; i++){
-	if (isFibreOut) newy[i] = y1[i] -  y2[i];	
+	if (isFibreOut) newy[i] = y1[i] -  (renorm)*y2[i];	
 	else newy[i] = y1[i];
 	newx[i] = x[i];
       }
@@ -145,12 +166,13 @@ void getSubtraction(string basename, string fieldname, string divname){
 	double icarusTime;
 	
 	if (ich==1){ // Cathode
-	  icarusTime = 0.05/ICARUSpolynomial(fields[0]);
+	  cout << " Cathode field " << fields[0] << endl;
+	  icarusTime = tTheory[0];
 	  peak = 99999;
 	  // loc = TMath::LocMin(nK,yK);
 	  for (int ip=nK-2; ip>0; ip--){
 	    if (xK[ip]<0) break;
-	    if (yK[ip]<peak){
+	    if (yK[ip]<peak && (xK[ip]>(icarusTime-0.1E-3)) && (xK[ip]<(icarusTime+0.1E-3)) ){
 	      peak = yK[ip];
 	      loc = ip;
 	    }
@@ -160,7 +182,8 @@ void getSubtraction(string basename, string fieldname, string divname){
 
 	  fittedKstartTime = 0.;
 	} else { //anode
-	  icarusTime = 0.05/ICARUSpolynomial(fields[2]);
+	  cout << " Anode field " << fields[2] << endl;
+	  icarusTime = tTheory[2];
 	  //loc = TMath::LocMax(nK,yK);
 	  peak = -99999.;
 	  for (int ip=nK-2; ip>0; ip--){
@@ -174,44 +197,78 @@ void getSubtraction(string basename, string fieldname, string divname){
 	  fittedKtime = xK[loc];
 	  fittedK = yK[loc];
 
+	  double R, C;
+	  if (divname.find("ampSwitch") != std::string::npos){
+	    cout << "AMP SWITCHED !!!!" << endl;
+	    R = 722.664;
+	    C = 0.125;
+	  }else{
+	    R = 475.078	;
+	    C = 0.103;
+	  }
+	  
+	  
+	  // TF1 *func = new TF1("func",fittingFunction,0.,0.9E-3,4);
+	  // func->SetParameters(5, 50, 0.02, (tTheory[0]+tTheory[1])*1e6);
+	  // // func->SetParLimits(0, 1, 50);
+	  // // func->SetParLimits(1, 10, 200);
+	  // // func->SetParLimits(2, 0, 0.1);
+	  // // func->SetParLimits(3, 10, 500);
+	  // func->SetParName(0, "#sigma");
+	  // func->SetParName(1, "#tau_{D}");
+	  // func->SetParName(2, "a");
+	  // func->SetParName(3, "t_0");
+	  // gdiff2->Fit("func", "R", "", tTheory[0]+tTheory[1]-0.1E-3, xK[nK-1]);
 
 	  
-	  TF1 *straightLine = new TF1("straightLine", "[0]+[1]*x");
-	  gdiff2->Fit("straightLine", "RQ0", "", fittedKtime-0.05e-3, fittedKtime);
-	  fittedKstartTime = -straightLine->GetParameter(0)/straightLine->GetParameter(1);
+	  TF1 *func = new TF1("func",signalFunction,tTheory[0]+tTheory[1]-0.1E-3, xK[nK-1],6);
+	  func->SetParName(0, "Q [pC]");
+	  func->SetParName(1, "R [MOhm]");
+	  func->SetParName(2, "C [pF]");
+	  func->SetParName(3, "taulife [us]");
+	  func->SetParName(4, "tdrift [us]");
+	  func->SetParName(5, "t0 [us]");
+	  func->SetParameters(5, R, C, 1000, icarusTime*1E6, (tTheory[0]+tTheory[1])*1E6); 
+	  // func->FixParameter(0, 5);
+	  // func->FixParameter(1, R);
+	  // func->FixParameter(2, C);
+	  //	  func->FixParameter(3, 1000);
+	  // func->FixParameter(4, icarusTime*1E6);
+	  // func->FixParameter(5,  (tTheory[0]+tTheory[1])*1E6);
+	  gdiff2->Fit("func", "R", "", tTheory[0]+tTheory[1]-0.1E-3, xK[nK-1]);
+
 	  
-	  delete straightLine;
+	  double tempx, tempy;
+	  for (int ip=0; ip<nK; ip++){
+	    tempx = xK[ip];
+	    tempy = func->Eval(xK[ip]);
+	    if (tempy>0.01*fittedK){
+	      // cout << ip << " " << tempx << " " << tempy << " " << endl;
+	      fittedKstartTime = tempx;
+	      break;
+	    }
+	  }
+	  fittedK = func->GetMaximum();
+	  TCanvas *ctemp = new TCanvas("ctemp");
+	  gdiff2->Draw("Al");
+	  //	  delete func;
+	  // TF1 *straightLine = new TF1("straightLine", "[0]+[1]*x");
+	  // gdiff2->Fit("straightLine", "RQ0", "", fittedKtime-icarusTime/2, fittedKtime);
+	  // fittedKstartTime = -straightLine->GetParameter(0)/straightLine->GetParameter(1);
+	  
+	  // delete straightLine;
 	}
 	// cout << chnamenice[ich] << " " << loc << " " << fittedKtime << " " << fittedK << endl;
 	
     
 	double fittedDriftTime = fittedKtime - fittedKstartTime;
-
-	cout << " Expected vs measured time " << icarusTime << " " << fittedDriftTime << endl;
+	cout << " Expected vs measured time at " << chnamenice[ich] << " " << icarusTime << " " << fittedDriftTime << endl;
 
 	// cout << "Fitted Cathode  " << fittedK << endl;
 	// cout << "Fitted Cathode  time " << fittedKtime << endl;
 	// cout << "Fitted Cathode start time " << fittedKstartTime << endl;
 	// cout << "Fitted drift time " << fittedDriftTime << endl;
 	
-
-
-	// TF1 *exponential;
-	// if (ich==0)  exponential = new TF1("exponential", "exp([0]+[1]*x[0])");
-	// else exponential = new TF1("exponential", "-exp([0]+[1]*x[0])");
-	// gdiff2->Fit("exponential", "RQ", "", fittedKtime, gdiff2->GetX()[gdiff2->GetN()-1]);
-
-	// double tauelec = -1./exponential->GetParameter(1);
-	// cout << "Tau electronics : " << tauelec << endl;
-
-	// double taulife = 0.003;
-
-	// double correction = (1.-exp(-(fittedDriftTime)*(1./tauelec + 1./taulife)))/(fittedDriftTime*(1./tauelec + 1./taulife));
-
-	// cout << "Correction : " << correction << endl;
-
-	// if (ich==0) fittedK*=correction;
-	// else fittedK/=correction;
 	
 	finalNumbers[ich][0] = fittedK;
 	finalNumbers[ich][1] = fittedKstartTime;
@@ -219,8 +276,8 @@ void getSubtraction(string basename, string fieldname, string divname){
 	
       }
       
-      delete gdiff;
-      delete gdiff2;
+      // delete gdiff;
+      // delete gdiff2;
       delete c;
 
 
@@ -230,6 +287,8 @@ void getSubtraction(string basename, string fieldname, string divname){
     }
   }
 
+
+  //  return;
   double tK, tGK, tGA, tA, t1, t2, t3;
   double QA, QK, R, purity, purity2;
   tK  = finalNumbers[1][1];
@@ -359,6 +418,7 @@ double getCorrection(double fittedDriftTime, double tauelec, double taulife){
 
   return (1.-exp(-(fittedDriftTime)*(1./tauelec + 1./taulife)))/(fittedDriftTime*(1./tauelec + 1./taulife));
 
+  //return (exp(-fittedDriftTime/tauelec)-exp(-fittedDriftTime/taulife))/(fittedDriftTime*(1/taulife - 1/tauelec));
 }
 
 

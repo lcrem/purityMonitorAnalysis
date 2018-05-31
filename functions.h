@@ -20,6 +20,16 @@ TGraph *getFilteredAverage(Int_t numGraphs, TGraph **graphs, TGraph *powerSpectr
 
 void removeGarbage(TGraph *g);
 
+Double_t greenFunction(Double_t *x, Double_t *par);
+
+Double_t signalFunction(Double_t *x, Double_t *par);
+
+int avgSomeGraphs(string filename, int nmax, TGraph **g);
+
+TF1 *getPreampA();
+
+TF1 *getPreampB();
+
 TGraph *justAverage(Int_t numGraphs, TGraph **grPtrPtr)
 {
   //Assume they are all at same sampling rate
@@ -165,6 +175,36 @@ Double_t fittingFunction(Double_t *x, Double_t *par)
   return y;
 }
 
+Double_t signalFunction(Double_t *x, Double_t *par)
+{
+
+  Double_t t = x[0]*1e6 - par[5];
+  Double_t Q = par[0];
+  // par[1] is in pF so we need to convert it in Farad
+  double C = par[1];
+  // par[2] is in MOhm so we need to convert it in Ohm
+  double R = par[2];
+  Double_t taulife = par[3];
+  Double_t tdrift = par[4];
+
+  Double_t tauelec = R*C;
+  
+  double heavisidet;
+  if (t<0) heavisidet = 0;
+  else heavisidet = 1;
+  
+  double heavisidet2;
+  if ((tdrift-t)<0) heavisidet2=0;
+  else heavisidet2 = 1;
+  
+  //Double_t Vout = (1/C)*(Q/tdrift)*heavisidet*(tautot)*(1-exp(-t/(tautot)))*heavisidet2;
+  //  Double_t Vout = (1/C)*(Q/tdrift)*(tautot)*(exp(-t/(tautot)))*heavisidet;
+  // Double_t Vout = (1/C)*(Q/tdrift)*tautot*(exp(-(t-tdrift)/tautot)-exp(-t/tautot))*heavisidet;
+  Double_t Vout = (Q/C)*(exp(-t/tauelec)-exp(-t/taulife))*heavisidet2*heavisidet/(tdrift*(1./taulife - 1./tauelec));
+  
+  return Vout;
+}
+
 Double_t ICARUSpolynomial(Double_t E)
 {
 
@@ -200,6 +240,68 @@ Double_t ICARUSpolynomial(Double_t E)
    
 
 }
+
+
+Double_t greenFunction(Double_t *x, Double_t *par)
+{
+  
+  // x[0] is in seconds, so we need to conver par[3] from musec to sec
+  double t = x[0] - par[3]*1e-6;
+  // 
+  double Q = par[0]*1e-12;
+  // par[1] is in pF so we need to convert it in Farad
+  double C = par[1]*1e-12;
+  // par[2] is in MOhm so we need to convert it in Ohm
+  double R = par[2]*1e6;
+
+  
+  double heaviside;
+  if (t<0) heaviside=0;
+  else heaviside = 1;
+  
+  double y = (-Q/C)*exp(-t/(R*C))*heaviside;
+  
+  return y;
+}
+
+TF1 *getPreampA(){
+
+  TF1 *func = new TF1("preampA",greenFunction,-0.1E-3,0.7E-3,4);  
+  func->SetParName(0, "Q (pC)");
+  //	func->SetParLimits(0, 1e-6, 2e-6);
+  func->SetParName(1, "C (pF)");
+  func->SetParLimits(1, 0.1, 0.2);
+  func->SetParName(2, "R (M#Omega)");
+  //func->SetParLimits(2, 490, 510);
+  func->SetParName(3, "t_0 (#mus)");
+
+  func->FixParameter(1, 0.103212);
+  func->FixParameter(2, 475.078); 
+  /* func->FixParameter(3, 5.904); */
+
+  return func;
+  
+}
+
+TF1 *getPreampB(){
+
+  TF1 *func = new TF1("preampB",greenFunction,-0.1E-3,0.7E-3,4);  
+  func->SetParName(0, "Q (pC)");
+  //	func->SetParLimits(0, 1e-6, 2e-6);
+  func->SetParName(1, "C (pF)");
+  //func->SetParLimits(1, 0.1, 0.2);
+  func->SetParName(2, "R (M#Omega)");
+  //func->SetParLimits(2, 490, 510);
+  func->SetParName(3, "t_0 (#mus)");
+
+  func->FixParameter(1, 0.12547);
+  func->FixParameter(2, 722.664);
+  func->FixParameter(3, 7.675);
+
+  return func;
+}
+
+
 TGraph *smoothGraph(TGraph *g, int nnn){
 
   int n = g->GetN();
@@ -243,20 +345,30 @@ TGraph *getZeroedAverage(Int_t numGraphs, TGraph **graphs){
   Int_t numPoints;
   
   TGraph *graphsZeroed[1000];
+
+  int count = 0;
   
   for (int i=0; i<numGraphs; i++){
     
     numPoints = graphs[i]->GetN();
-    Double_t meanVal=TMath::Mean(numPoints,graphs[i]->GetY());
+
+    /* TGraph *gtemp = smoothGraph(graphs[i], 20); */
+    /* Double_t minAll = TMath::Abs(TMath::MinElement(gtemp->GetN(), gtemp->GetY()));   */
+    /* if (minAll < 0.1 ) continue;   */
+    /* delete gtemp; */
+    
+    Double_t meanVal=TMath::Mean(200, graphs[i]->GetY());
+
     for(int ip=0;ip<numPoints;ip++) {
       newY[ip] = graphs[i]->GetY()[ip] - meanVal;
     }
-    graphsZeroed[i] = new TGraph(numPoints,graphs[i]->GetX(), newY);
+    graphsZeroed[count] = new TGraph(numPoints,graphs[i]->GetX(), newY);
+    count++;
   }
 
   
-  TGraph *zeroedAverage = justAverage( numGraphs,
-				       graphsZeroed);
+  TGraph *zeroedAverage = justAverage( count,
+				       graphsZeroed );
 
 
   return zeroedAverage;
@@ -315,4 +427,42 @@ void removeGarbage(TGraph *g){
     }
   }
 
+}
+
+
+
+int avgSomeGraphs(string filename, int nmax, TGraph **g){
+
+  TFile *f = new TFile(filename.c_str(), "read");
+  TGraph *graphs[1000];
+  int count = 0;
+  int ntot = 0;
+
+  double newy[10005];
+  double newx[10005];
+
+  for (int i=0; i<1000; i++){
+    // cout << i << endl;
+    graphs[count] = (TGraph*) f->Get(Form("graph%i", i+1));
+    if(!graphs[count]) break;
+    count++;
+    if (count==nmax){
+      
+      g[ntot] = getZeroedAverage( count, graphs );
+      // //TGraph *gtemp = getFilteredAverage( count, graphs, noiseTemplatePS, 0.1 );
+      /* g[ntot] = subtractGraphs(g[ntot], fibreOut); */
+      zeroBaseline(g[ntot]);
+      g[ntot]  = smoothGraph(g[ntot],  5); 
+      
+      count = 0;
+      ntot++;
+      // delete gtemp;
+    }
+  }
+
+  f->Close();
+
+  // cout << ntot << endl;
+  return ntot;
+  
 }

@@ -24,6 +24,11 @@ void findAllAverages(string filename, bool recreate=false){
   string finput = filename + ".root";
   string foutput = filename + "_averages.root";
 
+  TGraph *gavg20[100];
+  TGraph *gavg50[100];
+  TGraph *gavg100[100];
+  TGraph *gavg200[100];
+  
   
   TFile *fintemp = new TFile(foutput.c_str(), "read");
    
@@ -39,16 +44,17 @@ void findAllAverages(string filename, bool recreate=false){
 
     TGraph *noiseTempPS   = FFTtools::makePowerSpectrumVoltsSeconds( noiseTemplate );
   
-    TGraph *filteredAvg   = getFilteredAverage( ngraphs, graphs, noiseTempPS, 0.1 );
+    // TGraph *filteredAvg   = getFilteredAverage( ngraphs, graphs, noiseTempPS, 0.1 );
 
-    TGraph *filteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( filteredAvg );
+    // TGraph *filteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( filteredAvg );
 
-    TGraph *fancyFilteredAvg   = getFancyFilteredAverage( ngraphs, graphs, noiseTempPS, 0.01 );
+    // TGraph *fancyFilteredAvg   = getFancyFilteredAverage( ngraphs, graphs, noiseTempPS, 0.01 );
 
-    TGraph *fancyFilteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( fancyFilteredAvg );
+    // TGraph *fancyFilteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( fancyFilteredAvg );
 
     TGraph *zeroedAvg      = getZeroedAverage( ngraphs, graphs);
-  
+
+    TGraph *zeroedAvgSmooth = smoothGraph(zeroedAvg, 10);
     //  TGraph *subtractedAvg = getSubtractedAverage( ngraphs, graphs, noiseTemplate );
 
     TH2D *periodogram     = getPeriodogram( ngraphs, graphs, noiseTemplate );
@@ -61,14 +67,52 @@ void findAllAverages(string filename, bool recreate=false){
     avgPowerSpectrum    ->Write("avgPowerSpectrum");
     noiseTemplate   ->Write("noiseTemplate");
     noiseTempPS     ->Write("noiseTemplatePS");
-    filteredAvg     ->Write("filteredAvg");
-    filteredAvgPS   ->Write("filteredAvgPS");
-    fancyFilteredAvg     ->Write("fancyFilteredAvg");
-    fancyFilteredAvgPS   ->Write("fancyFilteredAvgPS");
+    // filteredAvg     ->Write("filteredAvg");
+    // filteredAvgPS   ->Write("filteredAvgPS");
+    // fancyFilteredAvg     ->Write("fancyFilteredAvg");
+    // fancyFilteredAvgPS   ->Write("fancyFilteredAvgPS");
     zeroedAvg       ->Write("zeroedAvg");
+    zeroedAvgSmooth       ->Write("zeroedAvgSmooth");
     // subtractedAvg   ->Write("subtractedAvg");
     periodogram     ->Write("periodogram");
     voltsHisto      ->Write("voltsHisto");
+
+
+    TDirectory *avg20 = fout->mkdir("avg20");
+    avg20->cd();
+    int num20 = avgSomeGraphs(finput, 20, gavg20);
+    for (int i=0; i<num20; i++){
+      avg20->cd();
+      gavg20[i]->Write(Form("gavg20_%d", i));
+    }
+
+    fout->cd();
+    TDirectory *avg50 = fout->mkdir("avg50");
+    avg50->cd();
+    int num50 = avgSomeGraphs(finput, 50, gavg50);
+    for (int i=0; i<num50; i++){
+      avg50->cd();      
+      gavg50[i]->Write(Form("gavg50_%d", i));
+    }
+    
+    TDirectory *avg100 = fout->mkdir("avg100");
+    avg100->cd();
+    int num100 = avgSomeGraphs(finput, 100, gavg100);
+    for (int i=0; i<num100; i++){
+      avg100->cd();      
+      gavg100[i]->Write(Form("gavg100_%d", i));
+    }
+
+        TDirectory *avg200 = fout->mkdir("avg200");
+    avg200->cd();
+    int num200 = avgSomeGraphs(finput, 200, gavg200);
+    for (int i=0; i<num200; i++){
+      avg200->cd();      
+      gavg200[i]->Write(Form("gavg200_%d", i));
+    }
+
+    fout->Write();
+    delete fout;
   }
    
 }
