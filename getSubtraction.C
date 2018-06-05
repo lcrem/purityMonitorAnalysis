@@ -200,42 +200,42 @@ void getSubtraction(string basename, string fieldname, string divname){
 	  double R, C;
 	  if (divname.find("ampSwitch") != std::string::npos){
 	    cout << "AMP SWITCHED !!!!" << endl;
-	    R = 722.664;
-	    C = 0.125;
+	    R = 800.;
+	    C = 0.102;
 	  }else{
-	    R = 475.078	;
-	    C = 0.103;
+	    R = 500.	;
+	    C = 0.104;
 	  }
 	  
 	  
-	  // TF1 *func = new TF1("func",fittingFunction,0.,0.9E-3,4);
-	  // func->SetParameters(5, 50, 0.02, (tTheory[0]+tTheory[1])*1e6);
-	  // // func->SetParLimits(0, 1, 50);
-	  // // func->SetParLimits(1, 10, 200);
-	  // // func->SetParLimits(2, 0, 0.1);
-	  // // func->SetParLimits(3, 10, 500);
-	  // func->SetParName(0, "#sigma");
-	  // func->SetParName(1, "#tau_{D}");
-	  // func->SetParName(2, "a");
-	  // func->SetParName(3, "t_0");
-	  // gdiff2->Fit("func", "R", "", tTheory[0]+tTheory[1]-0.1E-3, xK[nK-1]);
+	  TF1 *func = new TF1("func",fittingFunction,0.,0.9E-3,4);
+	  func->SetParameters(5, 50, 0.02, (tTheory[0]+tTheory[1])*1e6);
+	  // func->SetParLimits(0, 1, 50);
+	  // func->SetParLimits(1, 10, 200);
+	  // func->SetParLimits(2, 0, 0.1);
+	  // func->SetParLimits(3, 10, 500);
+	  func->SetParName(0, "#sigma");
+	  func->SetParName(1, "#tau_{D}");
+	  func->SetParName(2, "a");
+	  func->SetParName(3, "t_0");
+	  gdiff2->Fit("func", "R", "", tTheory[0]+tTheory[1]-0.1E-3, xK[nK-1]);
 
 	  
-	  TF1 *func = new TF1("func",signalFunction,tTheory[0]+tTheory[1]-0.1E-3, xK[nK-1],6);
-	  func->SetParName(0, "Q [pC]");
-	  func->SetParName(1, "R [MOhm]");
-	  func->SetParName(2, "C [pF]");
-	  func->SetParName(3, "taulife [us]");
-	  func->SetParName(4, "tdrift [us]");
-	  func->SetParName(5, "t0 [us]");
-	  func->SetParameters(5, R, C, 1000, icarusTime*1E6, (tTheory[0]+tTheory[1])*1E6); 
-	  // func->FixParameter(0, 5);
-	  // func->FixParameter(1, R);
-	  // func->FixParameter(2, C);
-	  //	  func->FixParameter(3, 1000);
-	  // func->FixParameter(4, icarusTime*1E6);
-	  // func->FixParameter(5,  (tTheory[0]+tTheory[1])*1E6);
-	  gdiff2->Fit("func", "R", "", tTheory[0]+tTheory[1]-0.1E-3, xK[nK-1]);
+	  // TF1 *func = new TF1("func",signalFunction,tTheory[0]+tTheory[1]-0.1E-3, xK[nK-1],6);
+	  // func->SetParName(0, "Q [pC]");
+	  // func->SetParName(1, "R [MOhm]");
+	  // func->SetParName(2, "C [pF]");
+	  // func->SetParName(3, "taulife [us]");
+	  // func->SetParName(4, "tdrift [us]");
+	  // func->SetParName(5, "t0 [us]");
+	  // func->SetParameters(5, R, C, 1000, icarusTime*1E6, (tTheory[0]+tTheory[1])*1E6); 
+	  // // func->FixParameter(0, 5);
+	  // // func->FixParameter(1, R);
+	  // // func->FixParameter(2, C);
+	  // //	  func->FixParameter(3, 1000);
+	  // // func->FixParameter(4, icarusTime*1E6);
+	  // // func->FixParameter(5,  (tTheory[0]+tTheory[1])*1E6);
+	  // gdiff2->Fit("func", "R", "", tTheory[0]+tTheory[1]-0.1E-3, xK[nK-1]);
 
 	  
 	  double tempx, tempy;
@@ -249,8 +249,6 @@ void getSubtraction(string basename, string fieldname, string divname){
 	    }
 	  }
 	  fittedK = func->GetMaximum();
-	  TCanvas *ctemp = new TCanvas("ctemp");
-	  gdiff2->Draw("Al");
 	  //	  delete func;
 	  // TF1 *straightLine = new TF1("straightLine", "[0]+[1]*x");
 	  // gdiff2->Fit("straightLine", "RQ0", "", fittedKtime-icarusTime/2, fittedKtime);
@@ -260,6 +258,8 @@ void getSubtraction(string basename, string fieldname, string divname){
 	}
 	// cout << chnamenice[ich] << " " << loc << " " << fittedKtime << " " << fittedK << endl;
 	
+	  TCanvas *ctemp = new TCanvas();
+	  gdiff2->Draw("Al");
     
 	double fittedDriftTime = fittedKtime - fittedKstartTime;
 	cout << " Expected vs measured time at " << chnamenice[ich] << " " << icarusTime << " " << fittedDriftTime << endl;
@@ -310,30 +310,37 @@ void getSubtraction(string basename, string fieldname, string divname){
   QA = finalNumbers[0][0];
   QK = finalNumbers[1][0];
 
-  double tauelec_preampA = 50*1e-6;
-  double tauelec_preampB = 90*1e-6;
+  double tauelec_preampA = 50.*1e-6;
+  double tauelec_preampB = 90.*1e-6;
   double tauelecK, tauelecA;
-  double gain_preampA    = 10.;
-  double gain_preampB    =  8.;
+  double gain_preampA    = 10.;//9.69;//1./0.104421;
+  double gain_preampB    = 9.;//7.97;//1./0.102084;
+  double gain_AoverB     = 0.888;
 
+  
   if (divname.find("ampSwitch") != std::string::npos){
     cout << "AMP SWITCHED !!!!" << endl;
     tauelecK = tauelec_preampA;
     tauelecA = tauelec_preampB;
 
-    QA /= gain_preampB;
-    QK /= gain_preampA;
+    // QA /= gain_preampB;
+    // QK /= gain_preampA;
+
+    QA *= gain_AoverB;
+
     
   }else{
 
     tauelecK = tauelec_preampB;
     tauelecA = tauelec_preampA;
 
-    QA /= gain_preampA;
-    QK /= gain_preampB;
+    QK *= gain_AoverB;
+
+    // QA /= gain_preampA;
+    // QK /= gain_preampB;
   }
   
-  double taulife = 0.003;
+  double taulife = 0.001;
   double Kcorrection;
   double Acorrection;
   double newQK = QK;
@@ -343,8 +350,10 @@ void getSubtraction(string basename, string fieldname, string divname){
 
     int count = 0;
     while(1){
-      
+
+      cout << "Catodo " << endl;
       Kcorrection = getCorrection(t1, tauelecK, taulife);
+      cout << "Anodo " << endl;
       Acorrection = getCorrection(t3, tauelecA, taulife);
 
       newQK = QK/Kcorrection;
@@ -354,6 +363,8 @@ void getSubtraction(string basename, string fieldname, string divname){
 
       purity = (1/TMath::Abs(TMath::Log(R)))*(t2 + 0.5*(t1+t3));
 
+      cout <<" This is my purity " <<  purity << endl;
+      
       if (TMath::Abs(purity-taulife)<0.01e-6) break;
       taulife=purity;
       count++;
@@ -384,8 +395,10 @@ void getSubtraction(string basename, string fieldname, string divname){
   printf("t1     : %12.4e \n",  t1  );
   printf("t2     : %12.4e \n",  t2  );
   printf("t3     : %12.4e \n",  t3  );
-  printf("QA     : %12.4e \n",  QA  );
-  printf("QK     : %12.4e \n",  QK  );
+  printf("QA/Gain: %12.4e \n",  QA  );
+  printf("QK/Gain: %12.4e \n",  QK  );
+  printf("QA corr: %12.4e \n",  newQA  );
+  printf("QK corr: %12.4e \n",  newQK  );
   printf("R      : %12.4e \n",  R   );
   printf("purity : %12.4e \n",  purity  );
   printf("purity2: %12.4e \n",  purity2 );
@@ -403,8 +416,10 @@ void getSubtraction(string basename, string fieldname, string divname){
   fprintf(pFile, "t1     : %12.4e \n",  t1  );
   fprintf(pFile, "t2     : %12.4e \n",  t2  );
   fprintf(pFile, "t3     : %12.4e \n",  t3  );
-  fprintf(pFile, "QA     : %12.4e \n",  QA  );
-  fprintf(pFile, "QK     : %12.4e \n",  QK  );
+  fprintf(pFile, "QA/Gain: %12.4e \n",  QA  );
+  fprintf(pFile, "QK/Gain: %12.4e \n",  QK  );
+  fprintf(pFile, "QA corr: %12.4e \n",  newQA  );
+  fprintf(pFile, "QK corr: %12.4e \n",  newQK  );
   fprintf(pFile, "R      : %12.4e \n",  R   );
   fprintf(pFile, "purity : %12.4e \n",  purity  );
   fprintf(pFile, "purity2: %12.4e \n",  purity2 );
@@ -416,9 +431,12 @@ void getSubtraction(string basename, string fieldname, string divname){
 
 double getCorrection(double fittedDriftTime, double tauelec, double taulife){
 
-  return (1.-exp(-(fittedDriftTime)*(1./tauelec + 1./taulife)))/(fittedDriftTime*(1./tauelec + 1./taulife));
+  double laura = (1.-exp(-(fittedDriftTime)*(1./tauelec + 1./taulife)))/(fittedDriftTime*(1./tauelec + 1./taulife));
+  double alan  = (exp(-fittedDriftTime/tauelec)-exp(-fittedDriftTime/taulife))/(fittedDriftTime*(1/taulife - 1/tauelec));
 
-  //return (exp(-fittedDriftTime/tauelec)-exp(-fittedDriftTime/taulife))/(fittedDriftTime*(1/taulife - 1/tauelec));
+  cout << "Correction " << laura << " " << alan << endl;
+  return laura;
+
 }
 
 

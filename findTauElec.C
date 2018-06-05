@@ -124,16 +124,32 @@ void findTauElec(string basename, string fieldname, string divname, string pream
 	TCanvas *ctemp = new TCanvas ("ctemp");
 	gdiff2->SetTitle(Form("%s;Time (s);Amplitude (V)", preamp.c_str()));
 	gdiff2->Draw("Al");
+	// TF1 *func = new TF1("func",greenFunction2,-0.1E-3,0.7E-3,4);
+
+	// func->SetParameters(0.01, 0.1, 500, 6);
+	// func->SetParName(0, "Q (pC)");
+	// //	func->SetParLimits(0, 1e-6, 2e-6);
+	// func->SetParName(1, "C (pF)");
+	// // func->FixParameter(1, 0.1);
+	// func->SetParLimits(1, 0.1, 0.2);
+	// func->SetParName(2, "R (M#Omega)");
+	// //func->SetParLimits(2, 490, 510);
+	// func->SetParName(3, "t_0 (#mus)");
+
 	TF1 *func = new TF1("func",greenFunction,-0.1E-3,0.7E-3,4);
 
-	func->SetParameters(0.03, 0.1, 500, 6);
+	func->SetParameters(1, 0.1, 50, 0);
 	func->SetParName(0, "Q (pC)");
-	//	func->SetParLimits(0, 1e-6, 2e-6);
-	func->SetParName(1, "C (pF)");
-	//func->SetParLimits(1, 0.1, 0.2);
-	func->SetParName(2, "R (M#Omega)");
-	//func->SetParLimits(2, 490, 510);
+	func->SetParName(1, "Gain ");
+	// func->SetParLimits(1, 0.1, 0.2);
+	func->SetParName(2, "Tau (#mus)");
+	//	func->SetParLimits(2, 490, 510);
 	func->SetParName(3, "t_0 (#mus)");
+	func->FixParameter(0, 1);
+	// func->FixParameter(2, 500);
+	
+
+
 	gdiff2->Fit("func","R");
 	func->Draw("same");
 

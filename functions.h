@@ -22,6 +22,8 @@ void removeGarbage(TGraph *g);
 
 Double_t greenFunction(Double_t *x, Double_t *par);
 
+Double_t greenFunction2(Double_t *x, Double_t *par);
+
 Double_t signalFunction(Double_t *x, Double_t *par);
 
 int avgSomeGraphs(string filename, int nmax, TGraph **g);
@@ -242,7 +244,7 @@ Double_t ICARUSpolynomial(Double_t E)
 }
 
 
-Double_t greenFunction(Double_t *x, Double_t *par)
+Double_t greenFunction2(Double_t *x, Double_t *par)
 {
   
   // x[0] is in seconds, so we need to conver par[3] from musec to sec
@@ -260,6 +262,29 @@ Double_t greenFunction(Double_t *x, Double_t *par)
   else heaviside = 1;
   
   double y = (-Q/C)*exp(-t/(R*C))*heaviside;
+  
+  return y;
+}
+
+
+Double_t greenFunction(Double_t *x, Double_t *par)
+{
+  
+  // x[0] is in seconds, so we need to conver par[3] from musec to sec
+  double t = x[0] - par[3]*1e-6;
+  // 
+  double Q = par[0];
+  // par[1] is in pF so we need to convert it in Farad
+  double G = par[1];
+  // par[2] is in MOhm so we need to convert it in Ohm
+  double tau = par[2]*1e-6;
+
+  
+  double heaviside;
+  if (t<0) heaviside=0;
+  else heaviside = 1;
+  
+  double y = (-G)*exp(-t/(tau))*heaviside;
   
   return y;
 }
