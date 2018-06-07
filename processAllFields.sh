@@ -7,34 +7,81 @@
 #FIELDS=("K-135GK135_150Vcm" "K-1600GK1100_1500Vcm" "K-1600GK1100_1500Vcm" "K-405GK405_450Vcm" "K-45GK45_50Vcm" "K-900GK900_1000Vcm" "K-900GK900_1000Vcm" "noField")
 #DIVISIONS=("200mVdiv" "100mVdiv" "500mVdiv" "200mVdiv" "200mVdiv" "100mVdiV" "500mVdiv" "200mVdiv")
 
-BASELINE="2018May02liquefaction/liquid/"
+BASELINE="2018May29liquefaction/liquid/"
 FIELDS=(
-    "K-68GK-50GA50A90_10.20.40Vcm"      
-#    "K-43GK-25GA25A45_10.10.20Vcm"      
-    "K-136GK-100GA100A180_20.40.80Vcm"  
-    "K-340GK-250GA250A450_50.100.200Vcm"
-    "K-272GK-200GA200A360_40.80.160Vcm" 
-    "K-204GK-150G150GA270_30.60.120Vcm" 
-    "K-204GK-150G150GA270_30.60.120Vcm" 
-    "K-170GK-125GA125A225_25.50.100Vcm" 
-    "K-475GK-350GA350A630_70.140.280Vcm"
-    "K-475GK-350GA350A630_70.140.280Vcm"
-    "K-475GK-350GA350A630_70.140.280Vcm"
-)
+
+    "K-356GK-320GA320A400_20.40.80Vcm"
+
+    "K-445GK-400GA400A500_25.50.100Vcm"
+
+    "K-534GK-480GA480A600_30.60.120Vcm"
+
+    "K-712GK-640GA640A800_40.80.160Vcm"
+
+    "K-890GK-800GA800A1000_50.100.200Vcm"
+
+    "K-1068GK-960GA960A1200_60.120.240Vcm"
+
+     "K-1246GK-1120GA1120A1400_70.140.280Vcm"
+
+    "K-1424GK-1280GA1280A1600_80.160.320Vcm"
+
+    "K-1602GK-1440GA1440A1800_90.180.360Vcm"
+
+    "K-1780GK-1600GA1600A2000_100.200.400Vcm"
+
+    )
 
 DIVISIONS=(
-    "50mVdiv_19.11"
-#    "50mVdiv_19.35"
-    "50mVdiv_18.53"
-    "100mVdiv_17.30_ampSwitch"
-    "100mVdiv_17.49_ampSwitch"
-    "50mVdiv_18.15"
-    "100mVdiv_18.09"
-    "100mVdiv_18.38"
-    "200mVdiv_16.59"
-    "200mVdiv_17.10_ampSwitch"
-    "100mVdiv_16.54"
+
+    "100mVdiv_20.11"
+
+    "100mVdiv_20.16"
+
+    "100mVdiv_20.21"
+
+    "100mVdiv_20.26"
+
+    "100mVdiv_20.31"
+
+    "100mVdiv_20.37"
+
+   "200mVdiv_20.44"
+
+    "200mVdiv_20.49"
+
+    "200mVdiv_20.56"
+
+    "200mVdiv_21.01"
 )
+
+#########################################################
+#BASELINE="2018May02liquefaction/liquid/"
+#FIELDS=(
+#"K-136GK-100GA100A180_20.40.80Vcm"
+#"K-170GK-125GA125A225_25.50.100Vcm"
+#"K-204GK-150G150GA270_30.60.120Vcm"
+#"K-204GK-150G150GA270_30.60.120Vcm"
+#"K-272GK-200GA200A360_40.80.160Vcm"
+#"K-340GK-250GA250A450_50.100.200Vcm"
+#"K-475GK-350GA350A630_70.140.280Vcm"
+#"K-475GK-350GA350A630_70.140.280Vcm"
+#"K-475GK-350GA350A630_70.140.280Vcm"
+#"K-68GK-50GA50A90_10.20.40Vcm"
+#)
+#
+#DIVISIONS=(
+#"50mVdiv_18.53"
+#"100mVdiv_18.38"
+#"100mVdiv_18.09"
+#"50mVdiv_18.15"
+#"100mVdiv_17.49_ampSwitch"
+#"100mVdiv_17.30_ampSwitch"
+#"100mVdiv_16.54"
+#"200mVdiv_16.59"
+#"200mVdiv_17.10_ampSwitch"
+#"50mVdiv_19.11"
+#)
 
 #########################################################
 #BASELINE="2018May02liquefaction/liquidDay2/"

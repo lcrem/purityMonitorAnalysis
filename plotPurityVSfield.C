@@ -126,9 +126,9 @@ string chnamenice[2] = {"anode", "Cathode"};
 double scaleY[2]     = {0.1,      0.1};
 string smoothnice[2] = {"", "smooth"};
 
-string plots[] = {"t1", "t2", "t3", "QA", "QK", "R", "purity", "purity2"};
+string plots[] = {"t1", "t2", "t3", "QA", "QK", "R", "lifetime", "lifetime2"};
 
-void plotPurityVSfield(){
+void plotlifetimeVSfield(){
 
 
   int numFields = (sizeof(fields)/sizeof(*fields));
@@ -137,7 +137,7 @@ void plotPurityVSfield(){
   char randomtxt[20];
   
   double tK, tGK, tGA, tA, t1, t2, t3;
-  double QA, QK, R, purity, purity2;
+  double QA, QK, R, lifetime, lifetime2;
 
   TGraph *graph[20];
   
@@ -149,8 +149,8 @@ void plotPurityVSfield(){
   for(int ifield=0; ifield<numFields; ifield++){
     
     
-    string intxtfile = basename +  fields[ifield] + "_" + divisions[ifield] + "_purity.txt";
-
+    string intxtfile = basename +  fields[ifield] + "_" + divisions[ifield] + "_lifetime.txt";
+    cout << intxtfile << endl;
     ifstream f (intxtfile.c_str());
     //    f.open();
     f >> randomtxt >> randomtxt >> tK;
@@ -163,8 +163,8 @@ void plotPurityVSfield(){
     f >> randomtxt >> randomtxt >> QA;
     f >> randomtxt >> randomtxt >> QK;
     f >> randomtxt >> randomtxt >> R;
-    f >> randomtxt >> randomtxt >> purity;
-    f >> randomtxt >> randomtxt >> purity2;
+    f >> randomtxt >> randomtxt >> lifetime;
+    f >> randomtxt >> randomtxt >> lifetime2;
 
     printf("tK     : %12.4e \n",  tK  );
     printf("tGK    : %12.4e \n",  tGK );
@@ -176,8 +176,8 @@ void plotPurityVSfield(){
     printf("QA     : %12.4e \n",  QA  );
     printf("QK     : %12.4e \n",  QK  );
     printf("R      : %12.4e \n",  R   );
-    printf("purity : %12.4e \n",  purity  );
-    printf("purity2: %12.4e \n",  purity2 );
+    printf("lifetime : %12.4e \n",  lifetime  );
+    printf("lifetime2: %12.4e \n",  lifetime2 );
 
     f.close();
 
@@ -188,8 +188,8 @@ void plotPurityVSfield(){
     graph[3]->SetPoint(ifield, ifield, QA);
     graph[4]->SetPoint(ifield, ifield, QK);
     graph[5]->SetPoint(ifield, ifield, R);
-    graph[6]->SetPoint(ifield, ifield, purity);
-    graph[7]->SetPoint(ifield, ifield, purity2);
+    graph[6]->SetPoint(ifield, ifield, lifetime);
+    graph[7]->SetPoint(ifield, ifield, lifetime2);
     
   }
 
