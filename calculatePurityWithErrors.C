@@ -14,6 +14,7 @@ string whichAvg[4] = {"justAvg", "filteredAvg", "zeroedAvg", "fancyFilteredAvg"}
 
 string howManyAvg[4] = {"avg20", "avg50", "avg100", "avg200"};
 int howManyGraphs[4] = {50, 20, 10, 5};
+int smoothing[2] = {5, 15};
 
 void getFields (string fieldname, double fields[3]);
 
@@ -72,7 +73,7 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
   int iavg=2;
   // int inum=3;
 
-  for (int inum=1; inum<4; inum++){
+  for (int inum=2; inum<4; inum++){
     hpurity[inum]= new TH1D (Form("hpurity_%d", inum), "", 1000, 0, 0.005);
     double finalNumbers[2][3]; // [0 anode, 1 cathode] [0 amplitude, 1 start time, 2 peak time]
 
@@ -163,7 +164,7 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
 	// gdiff = FFTtools::translateGraph(gdiff, -gdiff->GetX()[0]);
 	zeroBaseline(gdiff);
 	// removeGarbage(gdiff);
-	TGraph *gdiff2 = smoothGraph(gdiff, 20);
+	TGraph *gdiff2 = smoothGraph(gdiff, smoothing[ich]);
         
 	// gdiff2->Write((chnamenice[ich]+"_"+whichAvg[iavg]+"_smoothed").c_str());
                   
@@ -422,11 +423,11 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
   pFile = fopen (outtxtfile.c_str(),"w");
   
   
-  for (int inum=1; inum<4; inum++){
+  for (int inum=2; inum<4; inum++){
     double avgLifetime = hpurity[inum]->GetMean();
     double errLifetime = hpurity[inum]->GetMeanError();
   
-    cout << avgLifetime << " " << errLifetime << endl;
+    cout << "THIS IS OUR PURITY AND ERROR: " << avgLifetime << " " << errLifetime << endl;
 
     fprintf(pFile, "%s \n", howManyAvg[inum].c_str());
     fprintf(pFile, "%8.3e +/- %8.3e \n", avgLifetime , errLifetime );

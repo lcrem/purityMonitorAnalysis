@@ -12,6 +12,8 @@ double ymax = +0.8;
 //string basename = "2018Apr11liquefaction/Day3_allLiquid/cathodeANDanode/";
 string whichAvg[4] = {"justAvg", "filteredAvg", "zeroedAvg", "fancyFilteredAvg"};
 
+int smoothing[2] = {5, 15};
+
 void getFields (string fieldname, double fields[3]);
 
 double getCorrection(double fittedDriftTime, double tauelec, double taulife);
@@ -44,14 +46,15 @@ void getSubtraction(string basename, string fieldname, string divname){
   double *xTimeDelay = gtimedelay->GetX();
   double *yTimeDelay = gtimedelay->GetY();
   double baseY = yTimeDelay[0];
-  double step = 2.5;
+  double step = TMath::MaxElement(gtimedelay->GetN(), yTimeDelay)*0.9;
   for (int ip=0; ip<gtimedelay->GetN(); ip++){
-    if (yTimeDelay[ip]>(baseY+step)){
+    if (yTimeDelay[ip]>(step)){
       timedelay = xTimeDelay[ip];
       break;
     }
   }
   ftimedelay->Close();
+
   cout << "The time delay is " << timedelay << endl;
   
   double newy[20000];
@@ -94,7 +97,6 @@ void getSubtraction(string basename, string fieldname, string divname){
         file1->Close();
         file2->Close();
         
-        timedelay=800*1e-6;
         g1 = FFTtools::translateGraph(g1, -timedelay);
         g2 = FFTtools::translateGraph(g2, -timedelay);
         
@@ -149,7 +151,9 @@ void getSubtraction(string basename, string fieldname, string divname){
         // gdiff = FFTtools::translateGraph(gdiff, -gdiff->GetX()[0]);
         zeroBaseline(gdiff);
         // removeGarbage(gdiff);
-        TGraph *gdiff2 = smoothGraph(gdiff, 20);
+        //TGraph *gdiff2 = (TGraph*)gdiff->Clone();//smoothGraph(gdiff, 1);
+        TGraph *gdiff2 = smoothGraph(gdiff, smoothing[ich]);
+        
         
         gdiff2->Write((chnamenice[ich]+"_"+whichAvg[iavg]+"_smoothed").c_str());
         
