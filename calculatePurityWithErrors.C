@@ -28,9 +28,10 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
   
   double fields[3], distance[3], tTheory[3];
   getFields (fieldname, fields);
-  distance[0] = 0.018; // 1.8cm
-  distance[1] = 0.160; // 1.0cm
-  distance[2] = 0.010; // 1.0cm
+  //distances from K to GK, GK to GA, GA to A as measured on 12.06.2018 by Laura
+  distance[0] = 0.01823; // 1.8cm
+  distance[1] = 0.16424; // 1.0cm
+  distance[2] = 0.0985; // 1.0cm
   for (int i=0; i<3; i++){
     tTheory[i] = distance[i]/ICARUSpolynomial(fields[i]);
     cout << distance[i] << " " << fields[i] << " " << tTheory[i] << endl;
