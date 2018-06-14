@@ -32,6 +32,8 @@ TF1 *getPreampA();
 
 TF1 *getPreampB();
 
+int getSmoothingNumber(double deltat, double tdrift);
+
 TGraph *justAverage(Int_t numGraphs, TGraph **grPtrPtr)
 {
   //Assume they are all at same sampling rate
@@ -496,4 +498,14 @@ int avgSomeGraphs(string filename, int nmax, TGraph **g){
   // cout << ntot << endl;
   return ntot;
   
+}
+
+
+int getSmoothingNumber(double deltat, double tdrift){
+
+  int nsigma = 10;
+  int nsmooth = tdrift/(nsigma*2*deltat);
+  if (nsmooth>30) nsmooth=20;
+  return  nsmooth;
+
 }
