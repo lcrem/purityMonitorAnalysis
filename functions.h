@@ -333,19 +333,25 @@ TGraph *smoothGraph(TGraph *g, int nnn){
   double *x = g->GetX();
   double *y = g->GetY();
   double newy[20000];
+  double newx[20000];
 
   int count=0;
-
+  int insidecount=0;
+  
   for (int i=nnn; i<(n-nnn); i++){
-    newy[i]=0;
+    newy[count]=0;
     
+    insidecount=0;
     for (int j=i-nnn; j<i+nnn; j++){
-      newy[count]+=(y[j]/(nnn+nnn));
+      newy[count]+=(y[j]);
+      insidecount++;
     }
+    newy[count]/=(insidecount*1.);
+    newx[count] = x[i];
     count++;
   }
 
-  TGraph *gnew = new TGraph(count, x, newy);
+  TGraph *gnew = new TGraph(count, newx, newy);
 
   return gnew;
 
