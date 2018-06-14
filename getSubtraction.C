@@ -25,13 +25,10 @@ void getSubtraction(string basename, string fieldname, string divname){
   
   double fields[3], distance[3], tTheory[3];
   getFields (fieldname, fields);
-  distance[0] = 0.018; // 1.8cm
-  distance[1] = 0.160; // 1.0cm
-  distance[2] = 0.010; // 1.0cm
-  for (int i=0; i<3; i++){
-    tTheory[i] = distance[i]/ICARUSpolynomial(fields[i]);
-    cout << distance[i] << " " << fields[i] << " " << tTheory[i] << endl;
-  }
+  distance[0] = 0.01823; // 1.8cm
+  distance[1] = 0.16424; // 1.0cm
+  distance[2] = 0.0985; // 1.0cm
+
   
   cout << "Output file is " << outfile << endl;
   
@@ -47,6 +44,7 @@ void getSubtraction(string basename, string fieldname, string divname){
   double *yTimeDelay = gtimedelay->GetY();
   double baseY = yTimeDelay[0];
   double step = TMath::MaxElement(gtimedelay->GetN(), yTimeDelay)*0.9;
+  double timeStep = xTimeDelay[1]-xTimeDelay[0];
   for (int ip=0; ip<gtimedelay->GetN(); ip++){
     if (yTimeDelay[ip]>(step)){
       timedelay = xTimeDelay[ip];
@@ -56,7 +54,14 @@ void getSubtraction(string basename, string fieldname, string divname){
   ftimedelay->Close();
 
   cout << "The time delay is " << timedelay << endl;
-  
+
+
+  for (int i=0; i<3; i++){
+    tTheory[i] = distance[i]/ICARUSpolynomial(fields[i]);
+    cout << distance[i] << " " << fields[i] << " " << tTheory[i] << " " << timeStep << " " << getSmoothingNumber(timeStep, tTheory[i]) <<endl;
+  }
+  smoothing[0] =  getSmoothingNumber(timeStep, tTheory[2]);
+  smoothing[1] =  getSmoothingNumber(timeStep, tTheory[0]);
   double newy[20000];
   double newx[20000];
   
