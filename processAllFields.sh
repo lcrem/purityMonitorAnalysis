@@ -151,6 +151,7 @@ do
     
     echo Process all files for field $field   
 
-    root -b -q getSubtraction.C\(\"$BASELINE\"\,\"$field\"\,\"$div\"\)  
+#root -b -q getSubtraction.C\(\"$BASELINE\"\,\"$field\"\,\"$div\"\)
+    root -b -q calculatePurityWithErrors.C\(\"$BASELINE\"\,\"$field\"\,\"$div\"\)
 done
 
