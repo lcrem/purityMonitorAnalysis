@@ -7,34 +7,48 @@
 #FIELDS=("K-135GK135_150Vcm" "K-1600GK1100_1500Vcm" "K-1600GK1100_1500Vcm" "K-405GK405_450Vcm" "K-45GK45_50Vcm" "K-900GK900_1000Vcm" "K-900GK900_1000Vcm" "noField")
 #DIVISIONS=("200mVdiv" "100mVdiv" "500mVdiv" "200mVdiv" "200mVdiv" "100mVdiV" "500mVdiv" "200mVdiv")
 
-BASELINE="2018May29liquefaction/liquid/"
+BASELINE="2018May29liquefaction/"
 FIELDS=(
 
-    "K-356GK-320GA320A400_20.40.80Vcm"
+    "liquid/K-356GK-320GA320A400_20.40.80Vcm"
 
-    "K-445GK-400GA400A500_25.50.100Vcm"
+    "liquid/K-445GK-400GA400A500_25.50.100Vcm"
 
-    "K-534GK-480GA480A600_30.60.120Vcm"
+    "liquid/K-445GK-400GA400A500_25.50.100Vcm"
 
-    "K-712GK-640GA640A800_40.80.160Vcm"
+    "liquid/K-445GK-400GA400A500_25.50.100Vcm"
 
-    "K-890GK-800GA800A1000_50.100.200Vcm"
+    "liquid/K-534GK-480GA480A600_30.60.120Vcm"
 
-    "K-1068GK-960GA960A1200_60.120.240Vcm"
+    "liquid/K-712GK-640GA640A800_40.80.160Vcm"
 
-     "K-1246GK-1120GA1120A1400_70.140.280Vcm"
+    "liquid/K-890GK-800GA800A1000_50.100.200Vcm"
 
-    "K-1424GK-1280GA1280A1600_80.160.320Vcm"
+    "liquid/K-1068GK-960GA960A1200_60.120.240Vcm"
 
-    "K-1602GK-1440GA1440A1800_90.180.360Vcm"
+    "liquid/K-1246GK-1120GA1120A1400_70.140.280Vcm"
 
-    "K-1780GK-1600GA1600A2000_100.200.400Vcm"
+    "liquid/K-1424GK-1280GA1280A1600_80.160.320Vcm"
 
+    "liquid/K-1602GK-1440GA1440A1800_90.180.360Vcm"
+
+    "liquid/K-1780GK-1600GA1600A2000_100.200.400Vcm"
+
+    "liquidLongFibre/K-890GK-800GA800A1000_50.100.200Vcm"   
+    "liquidLongFibre/K-1424GK-1280GA1280A1600_80.160.320Vcm"
+    "liquidLongFibre/K-1424GK-1280GA1280A1600_80.160.320Vcm"
+    "liquidLongFibre/K-1246GK-1120GA1120A1400_70.140.280Vcm"
+    "liquidLongFibre/K-1068GK-960GA960A1200_60.120.240Vcm"  
+    
     )
 
 DIVISIONS=(
 
     "100mVdiv_20.11"
+
+    "100mVdiv_18.57"
+
+    "100mVdiv_18.42"
 
     "100mVdiv_20.16"
 
@@ -53,6 +67,13 @@ DIVISIONS=(
     "200mVdiv_20.56"
 
     "200mVdiv_21.01"
+
+    "100mVdiv_23.06"
+    "200mVdiv_22.31"
+    "200mVdiv_22.12"
+    "200mVdiv_22.08"
+    "100mVdiv_23.00"
+    
 )
 
 #########################################################
@@ -151,7 +172,7 @@ do
     
     echo Process all files for field $field   
 
-#root -b -q getSubtraction.C\(\"$BASELINE\"\,\"$field\"\,\"$div\"\)
-    root -b -q calculatePurityWithErrors.C\(\"$BASELINE\"\,\"$field\"\,\"$div\"\)
+root -b -q getSubtraction.C\(\"$BASELINE\"\,\"$field\"\,\"$div\"\)
+#    root -b -q calculatePurityWithErrors.C\(\"$BASELINE\"\,\"$field\"\,\"$div\"\)
 done
 

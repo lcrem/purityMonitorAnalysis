@@ -274,6 +274,7 @@ void plotLifetimeVSfield(){
   
   TCanvas *c1 = new TCanvas("c1");
   
+  TFile *fout  = new TFile("SystUncertainty_nominal.root", "recreate");
   for (int ip=0; ip<nplots-1; ip++){
     graph[ip]->SetTitle(Form("%s;;%s", plots[ip].c_str(), plots[ip].c_str()));
     graph[ip]->GetHistogram()->GetXaxis()->Set(numFields, -0.5, numFields-0.5);
@@ -283,6 +284,7 @@ void plotLifetimeVSfield(){
     graph[ip]->SetFillColor(kBlack);
     for (int i=1;i<=numFields;i++) graph[ip]->GetHistogram()->GetXaxis()->SetBinLabel(i,fieldNice[i-1].c_str());
     graph[ip]->Draw("Alp text");
+    graph[ip]->Write(plots[ip].c_str());
     c1->SetGrid();
     c1->Print((basename+"/plots/Allfields_"+plots[ip]+".png").c_str());
   }

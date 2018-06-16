@@ -64,6 +64,27 @@ void getSubtraction(string basename, string fieldname, string divname){
   smoothing[1] =  getSmoothingNumber(timeStep, tTheory[0]);
   double newy[20000];
   double newx[20000];
+
+  
+  double tauelec_preampA = 91.5031*1e-6;
+  double tauelec_preampB = 43.4835*1e-6;
+  double tauelecK, tauelecA;
+  double gain_preampA    = 10.;//9.69;//1./0.104421;
+  double gain_preampB    = 9.;//7.97;//1./0.102084;
+  double gain_AoverB     = 0.89512;
+  
+  
+  if (divname.find("ampSwitch") != std::string::npos){
+    cout << "AMP SWITCHED !!!!" << endl;
+    tauelecK = tauelec_preampA;
+    tauelecA = tauelec_preampB;
+        
+  }else{
+    tauelecK = tauelec_preampB;
+    tauelecA = tauelec_preampA;
+    
+  }
+  
   
   TFile *out = new TFile(outfile.c_str(), "recreate");
   
@@ -119,7 +140,7 @@ void getSubtraction(string basename, string fieldname, string divname){
         double integral1 = g1->Integral(0, 0.2E-3/dt);
         double integral2 = g2->Integral(0, 0.2E-3/dt);
         double renorm = integral1/integral2;
-        if (ich==1) renorm=1;
+        if (ich==1 || (!isFibreOut)) renorm=1;
         cout << "Integral " << integral1 << " " << integral2 << endl;
         if (renorm>10) renorm=1;
         renorm=1;
@@ -221,9 +242,13 @@ void getSubtraction(string basename, string fieldname, string divname){
             
             
             TF1 *func = new TF1("func",fittingFunction,0.,0.9E-3,4);
-            func->SetParameters(5, 50, 0.02, (tTheory[0]+tTheory[1])*1e6);
+            func->SetParameters(5, 90, 0.002, (tTheory[0]+tTheory[1])*1e6);
+	    // func->FixParameter(0, 5);
+	    // func->FixParameter(1, 43);
+	    // func->FixParameter(2, 0.002);
+	    // func->FixParameter(3, (tTheory[0]+tTheory[1])*1e6);
             // func->SetParLimits(0, 1, 50);
-            // func->SetParLimits(1, 10, 200);
+	    func->SetParLimits(1, tauelecA*1E6*0.95, tauelecA*1E6*1.05);
             // func->SetParLimits(2, 0, 0.1);
             // func->SetParLimits(3, 10, 500);
             func->SetParName(0, "#sigma");
@@ -313,6 +338,17 @@ void getSubtraction(string basename, string fieldname, string divname){
   t2 = tGA - tGK;
   t3 = tA - tGA;
   
+  if (divname.find("ampSwitch") != std::string::npos){
+    // QA /= gain_preampB;
+    // QK /= gain_preampA;
+    QA *= gain_AoverB;
+    
+  }else{
+    QK *= gain_AoverB;
+    // QA /= gain_preampA;
+    // QK /= gain_preampB;
+  }
+  
   
   if (tK<tGK && tGK<tGA && tGA<tA){
     
@@ -324,36 +360,6 @@ void getSubtraction(string basename, string fieldname, string divname){
   QA = finalNumbers[0][0];
   QK = finalNumbers[1][0];
   
-  double tauelec_preampA = 91.5031*1e-6;
-  double tauelec_preampB = 43.4835*1e-6;
-  double tauelecK, tauelecA;
-  double gain_preampA    = 10.;//9.69;//1./0.104421;
-  double gain_preampB    = 9.;//7.97;//1./0.102084;
-  double gain_AoverB     = 0.89512;
-  
-  
-  if (divname.find("ampSwitch") != std::string::npos){
-    cout << "AMP SWITCHED !!!!" << endl;
-    tauelecK = tauelec_preampA;
-    tauelecA = tauelec_preampB;
-    
-    // QA /= gain_preampB;
-    // QK /= gain_preampA;
-    
-    QA *= gain_AoverB;
-    
-    
-  }else{
-    
-    tauelecK = tauelec_preampB;
-    tauelecA = tauelec_preampA;
-    
-    QK *= gain_AoverB;
-    
-    // QA /= gain_preampA;
-    // QK /= gain_preampB;
-  }
-  
   double taulife = 0.001;
   double Kcorrection;
   double Acorrection;
@@ -363,7 +369,7 @@ void getSubtraction(string basename, string fieldname, string divname){
   if (R<1){
     
     int count = 0;
-    while(1){
+    while(count<20){
       
       //cout << "Catodo " << endl;
       Kcorrection = getCorrection(t1, tauelecK, taulife);
@@ -385,7 +391,7 @@ void getSubtraction(string basename, string fieldname, string divname){
     }
     cout << "Number of iterations : " << count << endl;
     
-    TF1 f ("lifetime function", "([1]/[3])*(TMath::SinH([3]/(2*x))/TMath::SinH([1]/(2*x)))*TMath::Exp(-([2]+0.5*([1]+[3]))) - [0]", -0.1, 0.1);
+    TF1 f ("lifetime function", "([1]/[3])*(TMath::SinH([3]/(2*x))/TMath::SinH([1]/(2*x)))*TMath::Exp(-([2]+0.5*([1]+[3]))/x) - [0]", -0.1, 0.1);
     f.SetParameters(R, t1, t2, t3);
     
     ROOT::Math::WrappedTF1 wf1(f);

@@ -34,6 +34,10 @@ TF1 *getPreampB();
 
 int getSmoothingNumber(double deltat, double tdrift);
 
+double attachmentCoefficientPoly(double E);
+
+Double_t purityAttachmentCoefficient(Double_t *x, Double_t *par);
+
 TGraph *justAverage(Int_t numGraphs, TGraph **grPtrPtr)
 {
   //Assume they are all at same sampling rate
@@ -511,4 +515,27 @@ int getSmoothingNumber(double deltat, double tdrift){
   if (nsmooth>30) nsmooth=20;
   return  nsmooth;
 
+}
+
+
+double attachmentCoefficientPoly(double E){
+
+  double C0 =  9.06962616E10;
+  double C1 = -4.07856249E7;
+  double C2 = 5809.220018;
+
+  return (C0 + C1*E + C2*E*E)*31.25E-6;
+
+}
+
+
+
+Double_t purityAttachmentCoefficient(Double_t *x, Double_t *par)
+{
+
+  double attCoeff = (par[0] + par[1]*x[0] + par[2]*x[0]*x[0])*31.25E-6;
+
+  double units = 1.E9*1000;
+  
+  return units/(attCoeff*par[3]);
 }
