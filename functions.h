@@ -512,7 +512,7 @@ int getSmoothingNumber(double deltat, double tdrift){
 
   int nsigma = 10;
   int nsmooth = tdrift/(nsigma*2*deltat);
-  if (nsmooth>30) nsmooth=20;
+  if (nsmooth>20) nsmooth=20;
   return  nsmooth;
 
 }
