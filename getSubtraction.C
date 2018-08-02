@@ -19,7 +19,14 @@ void getFields (string fieldname, double fields[3]);
 double getCorrection(double fittedDriftTime, double tauelec, double taulife);
 
 void getSubtraction(string basename, string fieldname, string divname){
+
+  bool useTGK = false;
+  string tofind = "Long";
   
+  if (fieldname.find(tofind) != std::string::npos){
+    useTGK=true;
+  }
+
   string outfile    = basename + fieldname + "_" + divname + "_signals.root";
   string outtxtfile = basename + fieldname + "_" + divname + "_lifetime.txt";
   
@@ -212,7 +219,12 @@ void getSubtraction(string basename, string fieldname, string divname){
             }
             fittedKtime = xK[loc];
             fittedK = yK[loc];
-            
+
+	    if (useTGK){
+	      fittedKtime = tTheory[0];
+	      fittedK = gdiff2->Eval(fittedKtime);
+	    }
+	    
             fittedKstartTime = 0.;
           } else { //anode
             cout << " Anode field " << fields[2] << endl;
