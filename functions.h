@@ -86,7 +86,7 @@ TGraph *justAverage(Int_t numGraphs, TGraph **grPtrPtr)
   for(int i=0;i<numPoints;i++) {
     sumVolts[i]/=countWaves;
   }
-  Double_t meanVal=TMath::Mean(numPoints,sumVolts);
+  Double_t meanVal=TMath::Mean(50,sumVolts);
   for(int i=0;i<numPoints;i++) {
     sumVolts[i]-=meanVal;
   }
@@ -397,7 +397,7 @@ TGraph *getZeroedAverage(Int_t numGraphs, TGraph **graphs){
     /* if (minAll < 0.1 ) continue;   */
     /* delete gtemp; */
     
-    Double_t meanVal=TMath::Mean(200, graphs[i]->GetY());
+    Double_t meanVal=TMath::Mean(50, graphs[i]->GetY());
 
     for(int ip=0;ip<numPoints;ip++) {
       newY[ip] = graphs[i]->GetY()[ip] - meanVal;
@@ -409,6 +409,14 @@ TGraph *getZeroedAverage(Int_t numGraphs, TGraph **graphs){
   
   TGraph *zeroedAverage = justAverage( count,
 				       graphsZeroed );
+
+  Double_t mean=TMath::Mean(50, zeroedAverage->GetY());
+
+  for(int ip=0;ip<numPoints;ip++) {
+    newY[ip] = zeroedAverage->GetY()[ip] - mean;
+  }
+
+  zeroedAverage = new TGraph(numPoints,zeroedAverage->GetX(), newY);
 
 
   return zeroedAverage;
