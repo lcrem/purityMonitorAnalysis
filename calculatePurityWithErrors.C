@@ -32,10 +32,6 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
   distance[0] = 0.01823; // 1.8cm
   distance[1] = 0.16424; // 1.0cm
   distance[2] = 0.0985; // 1.0cm
-  for (int i=0; i<3; i++){
-    tTheory[i] = distance[i]/ICARUSpolynomial(fields[i]);
-    cout << distance[i] << " " << fields[i] << " " << tTheory[i] << endl;
-  }
   
   cout << "Output file is " << outfile << endl;
   
@@ -50,18 +46,46 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
   double *xTimeDelay = gtimedelay->GetX();
   double *yTimeDelay = gtimedelay->GetY();
   double baseY = yTimeDelay[0];
-  double step = 2.5;
+  double step = TMath::MaxElement(gtimedelay->GetN(), yTimeDelay)*0.9;
+  double timeStep = xTimeDelay[1]-xTimeDelay[0];
   for (int ip=0; ip<gtimedelay->GetN(); ip++){
-    if (yTimeDelay[ip]>(baseY+step)){
+    if (yTimeDelay[ip]>(step)){
       timedelay = xTimeDelay[ip];
       break;
     }
   }
   ftimedelay->Close();
   cout << "The time delay is " << timedelay << endl;
-  
+
+  for (int i=0; i<3; i++){
+    tTheory[i] = distance[i]/ICARUSpolynomial(fields[i]);
+    cout << distance[i] << " " << fields[i] << " " << tTheory[i] << " " << timeStep << " " << getSmoothingNumber(timeStep, tTheory[i]) <<endl;
+  }
+  smoothing[0] =  getSmoothingNumber(timeStep, tTheory[2]);
+  smoothing[1] =  getSmoothingNumber(timeStep, tTheory[0]);
   double newy[20000];
   double newx[20000];
+
+  
+  double tauelec_preampA = 91.5031*1e-6;
+  double tauelec_preampB = 43.4835*1e-6;
+  double tauelecK, tauelecA;
+  double gain_preampA    = 10.;//9.69;//1./0.104421;
+  double gain_preampB    = 9.;//7.97;//1./0.102084;
+  double gain_AoverB     = 0.89512;
+  
+  
+  if (divname.find("ampSwitch") != std::string::npos){
+    cout << "AMP SWITCHED !!!!" << endl;
+    tauelecK = tauelec_preampA;
+    tauelecA = tauelec_preampB;
+        
+  }else{
+    tauelecK = tauelec_preampB;
+    tauelecA = tauelec_preampA;
+    
+  }
+
   
   TFile *out = new TFile(outfile.c_str(), "recreate");
   
@@ -74,7 +98,7 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
   int iavg=2;
   // int inum=3;
 
-  for (int inum=2; inum<4; inum++){
+  for (int inum=0; inum<4; inum++){
     hpurity[inum]= new TH1D (Form("hpurity_%d", inum), "", 1000, 0, 0.005);
     double finalNumbers[2][3]; // [0 anode, 1 cathode] [0 amplitude, 1 start time, 2 peak time]
 
@@ -95,7 +119,8 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
 	TGraph *g2;
 	bool isFibreOut;
 	if (file2->IsZombie()){
-	  string tempfilename = "2018May02liquefaction/liquid/K-475GK-350GA350A630_70.140.280Vcm_FibreOut_200mVdiv_16.59."+ chname[ich] +".traces_averages.root";
+	  //	  string tempfilename = "2018May02liquefaction/liquid/K-475GK-350GA350A630_70.140.280Vcm_FibreOut_200mVdiv_16.59."+ chname[ich] +".traces_averages.root";
+	  string tempfilename = f1;
 	  TFile *ftemp = new TFile(tempfilename.c_str(), "read");
 	  g2 = (TGraph*)ftemp->Get(whichAvg[iavg].c_str());
 	  g2->SetName("g2");
@@ -110,7 +135,6 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
 	file1->Close();
 	file2->Close();
         
-	timedelay=800*1e-6;
 	g1 = FFTtools::translateGraph(g1, -timedelay);
 	g2 = FFTtools::translateGraph(g2, -timedelay);
         
@@ -128,7 +152,7 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
 	double integral1 = g1->Integral(0, 0.2E-3/dt);
 	double integral2 = g2->Integral(0, 0.2E-3/dt);
 	double renorm = integral1/integral2;
-	if (ich==1) renorm=1;
+	if (ich==1 || (!isFibreOut)) renorm=1;
 	cout << "Integral " << integral1 << " " << integral2 << endl;
 	if (renorm>10) renorm=1;
 	renorm=1;
@@ -224,11 +248,14 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
 	    C = 0.104;
 	  }
           
-          
 	  TF1 *func = new TF1("func",fittingFunction,0.,0.9E-3,4);
-	  func->SetParameters(5, 50, 0.02, (tTheory[0]+tTheory[1])*1e6);
+	  func->SetParameters(5, 90, 0.002, (tTheory[0]+tTheory[1])*1e6);
+	  // func->FixParameter(0, 5);
+	  // func->FixParameter(1, 43);
+	  // func->FixParameter(2, 0.002);
+	  // func->FixParameter(3, (tTheory[0]+tTheory[1])*1e6);
 	  // func->SetParLimits(0, 1, 50);
-	  // func->SetParLimits(1, 10, 200);
+	  func->SetParLimits(1, tauelecA*1E6*0.95, tauelecA*1E6*1.05);
 	  // func->SetParLimits(2, 0, 0.1);
 	  // func->SetParLimits(3, 10, 500);
 	  func->SetParName(0, "#sigma");
@@ -236,8 +263,9 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
 	  func->SetParName(2, "a");
 	  func->SetParName(3, "t_0");
 	  gdiff2->Fit("func", "R", "", tTheory[0]+tTheory[1]-0.1E-3, xK[nK-1]);
-          
-          
+            
+            
+                   
 	  // TF1 *func = new TF1("func",signalFunction,tTheory[0]+tTheory[1]-0.1E-3, xK[nK-1],6);
 	  // func->SetParName(0, "Q [pC]");
 	  // func->SetParName(1, "R [MOhm]");
@@ -322,25 +350,16 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
     
       } else {
 	cout << "THESE NUMBERS DON'T MAKE SENSE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-    
+	cout << tK << " " << tGK << " " << tGA << " " << tA << endl;
+	continue;
       }
   
       QA = finalNumbers[0][0];
       QK = finalNumbers[1][0];
   
-      double tauelec_preampA = 91.5031*1e-6;
-      double tauelec_preampB = 43.4835*1e-6;
-      double tauelecK, tauelecA;
-      double gain_preampA    = 10.;//9.69;//1./0.104421;
-      double gain_preampB    = 9.;//7.97;//1./0.102084;
-      double gain_AoverB     = 0.89512;
-  
   
       if (divname.find("ampSwitch") != std::string::npos){
 	cout << "AMP SWITCHED !!!!" << endl;
-	tauelecK = tauelec_preampA;
-	tauelecA = tauelec_preampB;
-    
 	// QA /= gain_preampB;
 	// QK /= gain_preampA;
     
@@ -348,9 +367,6 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
     
     
       }else{
-    
-	tauelecK = tauelec_preampB;
-	tauelecA = tauelec_preampA;
     
 	QK *= gain_AoverB;
     
@@ -367,7 +383,7 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
       if (R<1){
     
 	int count = 0;
-	while(1){
+	while(count < 20){
       
 	  //cout << "Catodo " << endl;
 	  Kcorrection = getCorrection(t1, tauelecK, taulife);
@@ -389,6 +405,21 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
 	}
 	cout << "Number of iterations : " << count << endl;
     
+	TF1 f ("lifetime function", "([1]/[3])*(TMath::SinH([3]/(2*x))/TMath::SinH([1]/(2*x)))*TMath::Exp(-([2]+0.5*([1]+[3]))/x) - [0]", -0.1, 0.1);
+	f.SetParameters(R, t1, t2, t3);
+	
+	ROOT::Math::WrappedTF1 wf1(f);
+	
+	// Create the Integrator
+	ROOT::Math::BrentRootFinder brf;
+	
+	// Set parameters of the method
+	brf.SetFunction( wf1, -0.1, 0.1 );
+	brf.Solve();
+	
+	lifetime2 =  brf.Root() ;
+	
+
       } else {
 	lifetime = lifetime2 = 0;
       }

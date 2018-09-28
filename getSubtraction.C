@@ -106,7 +106,7 @@ void getSubtraction(string basename, string fieldname, string divname){
         string f2 = basename + fieldname + "_FibreOut_" + divname + "."+ chname[ich] + ".traces_averages.root";
         
         TFile *file1 = new TFile(f1.c_str(), "read");
-        TFile *file2 = new TFile(f2.c_str(), "read");
+	TFile *file2 = new TFile(f2.c_str(), "read");
         
         TGraph *g1 = (TGraph*)file1->Get(whichAvg[iavg].c_str());
         cout << whichAvg[iavg].c_str() << endl;
@@ -115,11 +115,12 @@ void getSubtraction(string basename, string fieldname, string divname){
         TGraph *g2;
         bool isFibreOut;
         if (file2->IsZombie()){
-          string tempfilename = "2018May02liquefaction/liquid/K-475GK-350GA350A630_70.140.280Vcm_FibreOut_200mVdiv_16.59."+ chname[ich] +".traces_averages.root";
-          TFile *ftemp = new TFile(tempfilename.c_str(), "read");
-          g2 = (TGraph*)ftemp->Get(whichAvg[iavg].c_str());
-          g2->SetName("g2");
-          ftemp->Close();
+	  //          string tempfilename = "2018May02liquefaction/liquid/K-475GK-350GA350A630_70.140.280Vcm_FibreOut_200mVdiv_16.59."+ chname[ich] +".traces_averages.root";
+	  string tempfilename = f1; 
+	  TFile *ftemp = new TFile(tempfilename.c_str(), "read");
+	  g2 = (TGraph*)ftemp->Get(whichAvg[iavg].c_str());
+	  g2->SetName("g2");
+	  ftemp->Close();
           isFibreOut = false;
         } else {
           g2 = (TGraph*)file2->Get(whichAvg[iavg].c_str());

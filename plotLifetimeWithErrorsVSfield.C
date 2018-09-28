@@ -1,93 +1,96 @@
 #include "functions.h"
 
-// string basename="2018Apr11liquefaction/Day3_allLiquid/K_GK_signals/";
+// string basefolder="2018Apr11liquefaction/Day3_allLiquid/K_GK_signals/";
 // string fields[] = {"noField", "K-45GK45_50Vcm", "K-135GK135_150Vcm", "K-405GK405_450Vcm", "K-1600GK1100_1500Vcm"};
 // string divisions[]={"200mVdiv", "200mVdiv", "200mVdiv", "200mVdiv", "500mVdiv"};
 // string fieldNice[] = {"No field", "50 V/cm", "150 V/cm", "450 V/cm", "1500 V/cm"};
 //int colors[]       = {kBlack,  kGreen+1, kBlue+1, kRed, kViolet};
 
-// string basename="2018Apr11liquefaction/Day3_allLiquid/cathodeANDanode/";
+// string basefolder="2018Apr11liquefaction/Day3_allLiquid/cathodeANDanode/";
 // string fields[]    = {"noField", "K-22GK22_25Vcm", "K-45GK45_50Vcm", "K-135GK135_150Vcm", "K-405GK405_450Vcm", "K-900GK900_1000Vcm", "K-1600GK1100_1500Vcm"};
 // string divisions[] = {"200mVdiv", "100mVdiv", "100mVdiv", "100mVdiv", "100mVdiv", "100mVdiv", "100mVdiv"};
 // string fieldNice[] = {"No field", "25 V/cm", "50 V/cm", "150 V/cm", "450 V/cm", "1000 V/cm", "1500 V/cm"};
 // int colors[]       = {kGray+2,  kBlue+1, kCyan+1, kGreen+1,  kRed, kOrange+1, kViolet+1};
 
 
-string basename="2018May29liquefaction/liquid/";
-string fields[]    = {
-  //"noField",
+// string basefolder="2018May29liquefaction/liquid/";
+// string fields[]    = {
+//   //"noField",
   
-  "K-356GK-320GA320A400_20.40.80Vcm",
+//   "K-356GK-320GA320A400_20.40.80Vcm",
   
-  "K-445GK-400GA400A500_25.50.100Vcm",
+//   "K-445GK-400GA400A500_25.50.100Vcm",
   
-  "K-534GK-480GA480A600_30.60.120Vcm",
+//   "K-534GK-480GA480A600_30.60.120Vcm",
   
-  "K-712GK-640GA640A800_40.80.160Vcm",
+//   "K-712GK-640GA640A800_40.80.160Vcm",
   
-  "K-890GK-800GA800A1000_50.100.200Vcm",
+//   "K-890GK-800GA800A1000_50.100.200Vcm",
   
-  "K-1068GK-960GA960A1200_60.120.240Vcm",
+//   "K-1068GK-960GA960A1200_60.120.240Vcm",
   
-  "K-1246GK-1120GA1120A1400_70.140.280Vcm",
+//   "K-1246GK-1120GA1120A1400_70.140.280Vcm",
   
-  "K-1424GK-1280GA1280A1600_80.160.320Vcm",
+//   "K-1424GK-1280GA1280A1600_80.160.320Vcm",
   
-  "K-1602GK-1440GA1440A1800_90.180.360Vcm",
+//   "K-1602GK-1440GA1440A1800_90.180.360Vcm",
   
-  "K-1780GK-1600GA1600A2000_100.200.400Vcm"
+//   "K-1780GK-1600GA1600A2000_100.200.400Vcm"
   
   
-};
-string divisions[] = {
-  //"50mVdiv_13.14"
+// };
+// string divisions[] = {
+//   //"50mVdiv_13.14"
   
-  "100mVdiv_20.11",
+//   "100mVdiv_20.11",
 
-  "100mVdiv_20.16",
+//   "100mVdiv_20.16",
   
-  "100mVdiv_20.21",
+//   "100mVdiv_20.21",
   
-  "100mVdiv_20.26",
+//   "100mVdiv_20.26",
   
-  "100mVdiv_20.31",
+//   "100mVdiv_20.31",
   
-  "100mVdiv_20.37",
+//   "100mVdiv_20.37",
   
-  "200mVdiv_20.44",
+//   "200mVdiv_20.44",
   
-  "200mVdiv_20.49",
+//   "200mVdiv_20.49",
   
-  "200mVdiv_20.56",
+//   "200mVdiv_20.56",
   
-  "200mVdiv_21.01"
-};
+//   "200mVdiv_21.01"
+// };
 
-string fieldNice[] = {
-  //"nofield"
-  "20-40-80 V/cm",
+// string fieldNice[] = {
+//   //"nofield"
+//   "20-40-80 V/cm",
   
-  "25-50-100 V/cm",
+//   "25-50-100 V/cm",
   
-  "30-60-120 V/cm",
+//   "30-60-120 V/cm",
   
-  "40-80-160 V/cm",
+//   "40-80-160 V/cm",
   
-  "50-100-200 V/cm",
+//   "50-100-200 V/cm",
   
-  "60-120-240 V/cm",
+//   "60-120-240 V/cm",
   
-  "70-140-280 V/cm",
+//   "70-140-280 V/cm",
   
-  "80-140-280 V/cm",
+//   "80-140-280 V/cm",
   
-  "90-180-360 V/cm",
+//   "90-180-360 V/cm",
   
-  "100-200-400 V/cm"
-};
+//   "100-200-400 V/cm"
+// };
 
 
-/*string basename="2018May02liquefaction/liquid/";
+
+
+
+/*string basefolder="2018May02liquefaction/liquid/";
  string fields[]    = {
  "K-68GK-50GA50A90_10.20.40Vcm",
  "K-136GK-100GA100A180_20.40.80Vcm",
@@ -128,7 +131,7 @@ string fieldNice[] = {
  "70-140-280 V/cm"
  };*/
 
-// string basename="2018May02liquefaction/liquidDay2/";
+// string basefolder="2018May02liquefaction/liquidDay2/";
 // string fields[]    = {
 //   "K-680GK-500GA500A900_100.200.400cm",
 //   "K-680GK-500GA500A900_100.200.400cm",
@@ -192,6 +195,76 @@ string fieldNice[] = {
 //   "150-300-600 V/cm"
 // };
 
+
+string basefolder="/unix/dune/purity/2018September21Liquefaction/";
+string fields[]={
+  "liquid/Silver/K-890GK-800GA800A1000_50.100.200V.cm"    ,
+  "liquid/Silver/K-890GK-800GA800A1000_50.100.200V.cm"    ,
+  "liquid/Silver/K-445GK-400GA400A500_25.50.100V.cm"      ,
+  "liquid/Silver/K-445GK-400GA400A500_25.50.100V.cm"      ,
+  "liquid/Silver/K-1780GK-1600GA1600A2000_100.200.400V.cm",
+  "liquid/Silver/K-1780GK-1600GA1600A2000_100.200.400V.cm",
+  "liquid/Silver/K-1602GK-1440GA1440A1800_90.180.360V.cm" ,
+  "liquid/Silver/K-1246GK-1120GA1120A1400_70.140.280V.cm" ,
+  "liquid/Silver/K-1246GK-1120GA1120A1400_70.140.280V.cm" ,
+  "liquid/Silver/K-1246GK-1120GA1120A1400_70.140.280V.cm" ,
+  
+  "liquid/Gold/K-890GK-800GA800A1000_50.100.200V.cm"       ,
+  "liquid/Gold/K-890GK-800GA800A1000_50.100.200V.cm"       ,
+  "liquid/Gold/K-445GK-400GA400A500_25.50.100V.cm"         ,
+  "liquid/Gold/K-1780GK-1600GA1600A2000_100.200.400V.cm"   ,
+  "liquid/Gold/K-1780GK-1600GA1600A2000_100.200.400V.cm"   ,
+  "liquid/Gold/K-1602GK-1440GA1440A1800_90.180.360V.cm"    ,
+  "liquid/Gold/K-1246GK-1120GA1120A1400_70.140.280V.cm"    ,
+  "liquid/Gold/K-1246GK-1120GA1120A1400_70.140.280V.cm"    ,
+  
+	       };
+
+string fieldNice[]={
+  "Silver 50.100.200V.cm"    ,
+  "Silver 50.100.200V.cm"    ,
+  "Silver 25.50.100V.cm"      ,
+  "Silver 25.50.100V.cm"      ,
+  "Silver 100.200.400V.cm",
+  "Silver 100.200.400V.cm",
+  "Silver 90.180.360V.cm" ,
+  "Silver 70.140.280V.cm" ,
+  "Silver 70.140.280V.cm" ,
+  "Silver 70.140.280V.cm" ,
+  
+  "Gold 50.100.200V.cm"       ,
+  "Gold 50.100.200V.cm"       ,
+  "Gold 25.50.100V.cm"         ,
+  "Gold 100.200.400V.cm"   ,
+  "Gold 100.200.400V.cm"   ,
+  "Gold 90.180.360V.cm"    ,
+  "Gold 70.140.280V.cm"    ,
+  "Gold 70.140.280V.cm"    ,
+};
+
+string divisions[]={
+  "23.08",
+  "02.01",
+  "22.25",
+  "22.17",
+  "23.18",
+  "01.56",
+  "23.02",
+  "22.56",
+  "22.52",
+  "01.50",
+  
+  "01.33",
+  "00.18",
+  "23.49",
+  "23.42",
+  "01.27",
+  "23.59",
+  "01.43",
+  "00.12",
+};
+
+
 int colors[]       = {kGray+2,  kBlue+1, kCyan+1, kGreen+1,  kRed, kOrange+1, kViolet+1, kBlue+2, kBlue+3, kBlue+5, kBlue+9};
 
 string whichAvg[4] = {"justAvg", "filteredAvg", "zeroedAvg", "fancyFilteredAvg"};
@@ -221,7 +294,7 @@ void plotLifetimeWithErrorsVSfield(){
   for(int ifield=0; ifield<numFields; ifield++){
     
     //avg 1000
-    string intxtfile = basename +  fields[ifield] + "_" + divisions[ifield] + "_lifetime.txt";
+    string intxtfile = basefolder +  fields[ifield] + "_" + divisions[ifield] + "_lifetime.txt";
     cout << intxtfile << endl;
     ifstream f (intxtfile.c_str());
     //    f.open();
@@ -245,7 +318,7 @@ void plotLifetimeWithErrorsVSfield(){
     f.close();
     
     //avg 200
-    string intxtfileavg = basename +  fields[ifield] + "_" + divisions[ifield] + "_lifetime_withErrors.txt";
+    string intxtfileavg = basefolder +  fields[ifield] + "_" + divisions[ifield] + "_lifetime_withErrors.txt";
     cout << intxtfileavg << endl;
     ifstream favg (intxtfileavg.c_str());
     //    f.open();
@@ -280,6 +353,8 @@ void plotLifetimeWithErrorsVSfield(){
   gpurity1000->SetMarkerStyle(kCircle);
   gpurity1000->SetMarkerSize(1);
   gpurity1000->SetMarkerColor(kBlack);
+
+  gpurity1000->GetYaxis()->SetRangeUser(0, 5000);
   gpurity1000->Draw("Alp text");
 
   gpurity200->SetMarkerStyle(kCircle);
@@ -294,8 +369,16 @@ void plotLifetimeWithErrorsVSfield(){
   gpurity100->SetLineColor(kRed);
   gpurity100->Draw("pel");
 
+
+  TLegend *leg = new TLegend(0.65, 0.7, 0.89, 0.89);
+  leg->AddEntry(gpurity1000, "Avg 1000", "l");
+  leg->AddEntry(gpurity200,  "Avg 200", "l");
+  leg->AddEntry(gpurity100,  "Avg 100", "l");
+  leg->Draw();
+
+
   c1->SetGrid();
-  c1->Print((basename+"/plots/Allfields_lifetimeWithErrors.png").c_str());
+  c1->Print((basefolder+"/plots/Allfields_lifetimeWithErrors.png").c_str());
   
   
   
