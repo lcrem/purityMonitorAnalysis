@@ -44,18 +44,18 @@ void findAllAverages(string filename, bool recreate=false){
 
     TGraph *noiseTempPS   = FFTtools::makePowerSpectrumVoltsSeconds( noiseTemplate );
   
-    // TGraph *filteredAvg   = getFilteredAverage( ngraphs, graphs, noiseTempPS, 0.1 );
+    TGraph *filteredAvg   = getFilteredAverage( ngraphs, graphs, avgPowerSpectrum, 0.001 );
 
-    // TGraph *filteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( filteredAvg );
+    TGraph *filteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( filteredAvg );
 
-    // TGraph *fancyFilteredAvg   = getFancyFilteredAverage( ngraphs, graphs, noiseTempPS, 0.01 );
+    TGraph *fancyFilteredAvg   = getFancyFilteredAverage( ngraphs, graphs, avgPowerSpectrum, 0.001 );
 
-    // TGraph *fancyFilteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( fancyFilteredAvg );
+    TGraph *fancyFilteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( fancyFilteredAvg );
 
     TGraph *zeroedAvg      = getZeroedAverage( ngraphs, graphs);
 
     TGraph *zeroedAvgSmooth = smoothGraph(zeroedAvg, 10);
-    //  TGraph *subtractedAvg = getSubtractedAverage( ngraphs, graphs, noiseTemplate );
+    // TGraph *subtractedAvg = getSubtractedAverage( ngraphs, graphs, noiseTemplate );
 
     TH2D *periodogram     = getPeriodogram( ngraphs, graphs, noiseTemplate );
 
@@ -67,13 +67,13 @@ void findAllAverages(string filename, bool recreate=false){
     avgPowerSpectrum    ->Write("avgPowerSpectrum");
     noiseTemplate   ->Write("noiseTemplate");
     noiseTempPS     ->Write("noiseTemplatePS");
-    // filteredAvg     ->Write("filteredAvg");
-    // filteredAvgPS   ->Write("filteredAvgPS");
-    // fancyFilteredAvg     ->Write("fancyFilteredAvg");
-    // fancyFilteredAvgPS   ->Write("fancyFilteredAvgPS");
+    filteredAvg     ->Write("filteredAvg");
+    filteredAvgPS   ->Write("filteredAvgPS");
+    fancyFilteredAvg     ->Write("fancyFilteredAvg");
+    fancyFilteredAvgPS   ->Write("fancyFilteredAvgPS");
     zeroedAvg       ->Write("zeroedAvg");
     zeroedAvgSmooth       ->Write("zeroedAvgSmooth");
-    // subtractedAvg   ->Write("subtractedAvg");
+     // subtractedAvg   ->Write("subtractedAvg");
     periodogram     ->Write("periodogram");
     voltsHisto      ->Write("voltsHisto");
 
