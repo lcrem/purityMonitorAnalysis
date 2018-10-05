@@ -284,12 +284,14 @@ void plotLifetimeWithErrorsVSfield(){
   
   double tK, tGK, tGA, tA, t1, t2, t3;
   double QA, QK, QAcorr, QKcorr, R, lifetime, lifetime2;
-  double lifetime200, lifetime100, error200, error100;
-  
+  double lifetime50, error50, rms50, rmserr50;
+  double lifetime100, error100, rms100, rmserr100;
+  double lifetime200, error200, rms200, rmserr200;
+
   TGraph *gpurity1000 = new TGraph(numFields);
-  TGraphErrors *gpurity200  = new TGraphErrors(numFields);
+  TGraphErrors *gpurity50  = new TGraphErrors(numFields);
   TGraphErrors *gpurity100  = new TGraphErrors(numFields);
-  
+  TGraphErrors *gpurity200  = new TGraphErrors(numFields);
   
   for(int ifield=0; ifield<numFields; ifield++){
     
@@ -323,21 +325,25 @@ void plotLifetimeWithErrorsVSfield(){
     ifstream favg (intxtfileavg.c_str());
     //    f.open();
     favg >> randomtxt;
-    favg >> lifetime100 >> randomtxt >> error100;
+    favg >> lifetime50  >> error50 >> rms50 >> rmserr50;
     favg >> randomtxt;
-    favg >> lifetime200 >> randomtxt >> error200;
-
+    favg >> lifetime100  >> error100 >> rms100 >> rmserr100;
+    favg >> randomtxt;
+    favg >> lifetime200  >> error200 >> rms200 >> rmserr200;
     
-    printf("avg100 lifetime us: %12.4e +\- %12.4e \n",  lifetime100*1e6, error100*1e6);
-    printf("avg200 lifetime us: %12.4e +\- %12.4e \n",  lifetime200*1e6, error200*1e6);
+    printf("avg50  lifetime us: %12.4e +- %12.4e \n",  lifetime50*1e6, rms50*1e6);
+    printf("avg100 lifetime us: %12.4e +- %12.4e \n",  lifetime100*1e6, rms100*1e6);
+    printf("avg200 lifetime us: %12.4e +- %12.4e \n",  lifetime200*1e6, rms200*1e6);
     
     favg.close();
     
     gpurity1000->SetPoint(ifield, ifield, lifetime*1e6);
     gpurity200->SetPoint(ifield, ifield, lifetime100*1e6);
     gpurity100->SetPoint(ifield, ifield, lifetime200*1e6);
-    gpurity100->SetPointError(ifield, 0, error100*1e6);
-    gpurity200->SetPointError(ifield, 0, error200*1e6);
+    gpurity50->SetPoint(ifield, ifield, lifetime50*1e6);
+    gpurity200->SetPointError(ifield, 0, rms200*1e6);
+    gpurity100->SetPointError(ifield, 0, rms100*1e6);
+    gpurity50->SetPointError(ifield, 0, rms50*1e6);
     
   }
   
@@ -369,11 +375,18 @@ void plotLifetimeWithErrorsVSfield(){
   gpurity100->SetLineColor(kRed);
   gpurity100->Draw("pel");
 
+  gpurity50->SetMarkerStyle(kCircle);
+  gpurity50->SetMarkerSize(1);
+  gpurity50->SetMarkerColor(kGreen+2);
+  gpurity50->SetLineColor(kGreen+2);
+  gpurity50->Draw("pel");
+
 
   TLegend *leg = new TLegend(0.65, 0.7, 0.89, 0.89);
   leg->AddEntry(gpurity1000, "Avg 1000", "l");
   leg->AddEntry(gpurity200,  "Avg 200", "l");
   leg->AddEntry(gpurity100,  "Avg 100", "l");
+  leg->AddEntry(gpurity50,   "Avg 50", "l");
   leg->Draw();
 
 

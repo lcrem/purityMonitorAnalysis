@@ -98,7 +98,7 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
   int iavg=2;
   // int inum=3;
 
-  for (int inum=0; inum<4; inum++){
+  for (int inum=1; inum<4; inum++){
     hpurity[inum]= new TH1D (Form("hpurity_%d", inum), "", 1000, 0, 0.005);
     double finalNumbers[2][3]; // [0 anode, 1 cathode] [0 amplitude, 1 start time, 2 peak time]
 
@@ -387,10 +387,12 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
   
   for (int inum=1; inum<4; inum++){
 
-    
     double avgLifetime = hpurity[inum]->GetMean();
     double errLifetime = hpurity[inum]->GetMeanError();
-    
+    double rmsLifetime = hpurity[inum]->GetRMS();
+    double rmserrLifetime = hpurity[inum]->GetRMSError();
+  
+
     cout << "THIS IS OUR PURITY AND ERROR: " << avgLifetime << " " << errLifetime << endl;
 
 
@@ -401,7 +403,7 @@ void calculatePurityWithErrors(string basename, string fieldname, string divname
 
     
     fprintf(pFile, "%s \n", howManyAvg[inum].c_str());
-    fprintf(pFile, "%8.3e +/- %8.3e \n", avgLifetime , errLifetime );
+    fprintf(pFile, "%8.3e %8.3e %8.3e %8.3e \n", avgLifetime , errLifetime, rmsLifetime, rmserrLifetime);
     // fprintf(pFile, "tK     : %12.4e \n",  tK  );
     // fprintf(pFile, "tGK    : %12.4e \n",  tGK );
     // fprintf(pFile, "tGA    : %12.4e \n",  tGA );

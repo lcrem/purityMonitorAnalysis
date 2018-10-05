@@ -29,6 +29,15 @@ FIELDS=(
 "liquid/Gold/K-1246GK-1120GA1120A1400_70.140.280V.cm"    
 "liquid/Gold/K-1246GK-1120GA1120A1400_70.140.280V.cm"    
 
+"longFibreLiquid/Silver/K-890GK-800GA800A1000_50.100.200V.cm"      
+"longFibreLiquid/Silver/K-1246GK-1120GA1120A1400_70.140.280V.cm"   
+"longFibreLiquid/Silver/K-1780GK-1600GA1600A2000_100.200.400V.cm"  
+
+"longFibreLiquid/Gold/K-890GK-800GA800A1000_50.100.200V.cm"        
+"longFibreLiquid/Gold/K-1246GK-1120GA1120A1400_70.140.280V.cm"     
+"longFibreLiquid/Gold/K-1780GK-1600GA1600A2000_100.200.400V.cm"    
+
+
 )
 
 DIVISIONS=(
@@ -51,6 +60,14 @@ DIVISIONS=(
 "23.59"
 "01.43"
 "00.12"
+
+"01.03"
+"00.58"
+"01.09"
+       
+"00.34"
+"00.50"
+"00.43"
 )
 
 #BASELINE="2018May29liquefaction/"
