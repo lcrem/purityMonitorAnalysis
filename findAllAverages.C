@@ -40,24 +40,25 @@ void findAllAverages(string filename, bool recreate=false){
 
     TGraph *avgPowerSpectrum  = getAveragePowerSpectrum ( ngraphs, graphs );
   
-    TGraph *noiseTemplate = FFTtools::correlateAndAverage( ngraphs, graphs );
+    // TGraph *noiseTemplate = FFTtools::correlateAndAverage( ngraphs, graphs );
 
-    TGraph *noiseTempPS   = FFTtools::makePowerSpectrumVoltsSeconds( noiseTemplate );
+    // TGraph *noiseTempPS   = FFTtools::makePowerSpectrumVoltsSeconds( noiseTemplate );
   
-    TGraph *filteredAvg   = getFilteredAverage( ngraphs, graphs, avgPowerSpectrum, 0.001 );
+    // TGraph *filteredAvg   = getFilteredAverage( ngraphs, graphs, avgPowerSpectrum, 0.001 );
 
-    TGraph *filteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( filteredAvg );
+    // TGraph *filteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( filteredAvg );
 
-    TGraph *fancyFilteredAvg   = getFancyFilteredAverage( ngraphs, graphs, avgPowerSpectrum, 0.001 );
+    // TGraph *fancyFilteredAvg   = getFancyFilteredAverage( ngraphs, graphs, avgPowerSpectrum, 0.001 );
 
-    TGraph *fancyFilteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( fancyFilteredAvg );
+    // TGraph *fancyFilteredAvgPS = FFTtools::makePowerSpectrumVoltsSeconds( fancyFilteredAvg );
 
     TGraph *zeroedAvg      = getZeroedAverage( ngraphs, graphs);
 
     TGraph *zeroedAvgSmooth = smoothGraph(zeroedAvg, 10);
+
     // TGraph *subtractedAvg = getSubtractedAverage( ngraphs, graphs, noiseTemplate );
 
-    TH2D *periodogram     = getPeriodogram( ngraphs, graphs, noiseTemplate );
+    // TH2D *periodogram     = getPeriodogram( ngraphs, graphs, noiseTemplate );
 
     TH2D *voltsHisto      = getVoltsHistogram( ngraphs, graphs );
 
@@ -65,16 +66,16 @@ void findAllAverages(string filename, bool recreate=false){
     TFile *fout = new TFile(foutput.c_str(), "recreate");
     justAvg         ->Write("justAvg");
     avgPowerSpectrum    ->Write("avgPowerSpectrum");
-    noiseTemplate   ->Write("noiseTemplate");
-    noiseTempPS     ->Write("noiseTemplatePS");
-    filteredAvg     ->Write("filteredAvg");
-    filteredAvgPS   ->Write("filteredAvgPS");
-    fancyFilteredAvg     ->Write("fancyFilteredAvg");
-    fancyFilteredAvgPS   ->Write("fancyFilteredAvgPS");
+    // noiseTemplate   ->Write("noiseTemplate");
+    // noiseTempPS     ->Write("noiseTemplatePS");
+    // filteredAvg     ->Write("filteredAvg");
+    // filteredAvgPS   ->Write("filteredAvgPS");
+    // fancyFilteredAvg     ->Write("fancyFilteredAvg");
+    // fancyFilteredAvgPS   ->Write("fancyFilteredAvgPS");
     zeroedAvg       ->Write("zeroedAvg");
     zeroedAvgSmooth       ->Write("zeroedAvgSmooth");
      // subtractedAvg   ->Write("subtractedAvg");
-    periodogram     ->Write("periodogram");
+    // periodogram     ->Write("periodogram");
     voltsHisto      ->Write("voltsHisto");
 
 
@@ -124,9 +125,11 @@ int fillGraphs(string filename){
 
   int count = 0;
   for (int i=0; i<1000; i++){
-    // cout << i << endl;
-    graphs[i] = (TGraph*) f->Get(Form("graph%i", i+1));
-    if(!graphs[i]) break;
+    TGraph *gtemp = (TGraph*) f->Get(Form("graph%i", i+1));
+    if(!gtemp) break;
+    //    if (TMath::MinElement(gtemp->GetN(), gtemp->GetY())>-0.3) continue;
+    //    cout << i << " " << count << endl;
+    graphs[count] = (TGraph*) f->Get(Form("graph%i", i+1));;
     count++;
   }
 

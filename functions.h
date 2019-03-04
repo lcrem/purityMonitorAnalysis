@@ -341,8 +341,8 @@ TGraph *smoothGraph(TGraph *g, int nnn){
   int n = g->GetN();
   double *x = g->GetX();
   double *y = g->GetY();
-  double newy[20000];
-  double newx[20000];
+  double newy[100010];
+  double newx[100010];
 
   int count=0;
   int insidecount=0;
@@ -381,7 +381,7 @@ void zeroBaseline(TGraph *g){
 
 TGraph *getZeroedAverage(Int_t numGraphs, TGraph **graphs){
   
-  Double_t newY[1000000];
+  Double_t newY[100010];
   Int_t numPoints;
   
   TGraph *graphsZeroed[1000];
@@ -402,6 +402,7 @@ TGraph *getZeroedAverage(Int_t numGraphs, TGraph **graphs){
     for(int ip=0;ip<numPoints;ip++) {
       newY[ip] = graphs[i]->GetY()[ip] - meanVal;
     }
+    
     graphsZeroed[count] = new TGraph(numPoints,graphs[i]->GetX(), newY);
     count++;
   }
@@ -417,7 +418,6 @@ TGraph *getZeroedAverage(Int_t numGraphs, TGraph **graphs){
   }
 
   zeroedAverage = new TGraph(numPoints,zeroedAverage->GetX(), newY);
-
 
   return zeroedAverage;
 }
@@ -486,8 +486,8 @@ int avgSomeGraphs(string filename, int nmax, TGraph **g){
   int count = 0;
   int ntot = 0;
 
-  double newy[10005];
-  double newx[10005];
+  double newy[100010];
+  double newx[100010];
 
   for (int i=0; i<1000; i++){
     // cout << i << endl;
