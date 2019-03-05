@@ -19,7 +19,7 @@ TH2D *getVoltsHistogram( Int_t numGraphs, TGraph **grPtrPtr );
 
 TGraph *getAveragePowerSpectrum(Int_t numGraphs, TGraph **graphs);
 
-void findAllAverages(string filename, bool recreate=false){
+void findAllAverages(string filename, bool recreate=true){
 
   string finput = filename + ".root";
   string foutput = filename + "_averages.root";
