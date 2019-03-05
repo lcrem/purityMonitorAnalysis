@@ -79,38 +79,38 @@ void findAllAverages(string filename, bool recreate=false){
     voltsHisto      ->Write("voltsHisto");
 
 
-    TDirectory *avg20 = fout->mkdir("avg20");
-    avg20->cd();
-    int num20 = avgSomeGraphs(finput, 20, gavg20);
-    for (int i=0; i<num20; i++){
-      avg20->cd();
-      gavg20[i]->Write(Form("gavg20_%d", i));
-    }
+    // TDirectory *avg20 = fout->mkdir("avg20");
+    // avg20->cd();
+    // int num20 = avgSomeGraphs(finput, 20, gavg20);
+    // for (int i=0; i<num20; i++){
+    //   avg20->cd();
+    //   gavg20[i]->Write(Form("gavg20_%d", i));
+    // }
 
-    fout->cd();
-    TDirectory *avg50 = fout->mkdir("avg50");
-    avg50->cd();
-    int num50 = avgSomeGraphs(finput, 50, gavg50);
-    for (int i=0; i<num50; i++){
-      avg50->cd();      
-      gavg50[i]->Write(Form("gavg50_%d", i));
-    }
+    // fout->cd();
+    // TDirectory *avg50 = fout->mkdir("avg50");
+    // avg50->cd();
+    // int num50 = avgSomeGraphs(finput, 50, gavg50);
+    // for (int i=0; i<num50; i++){
+    //   avg50->cd();      
+    //   gavg50[i]->Write(Form("gavg50_%d", i));
+    // }
     
-    TDirectory *avg100 = fout->mkdir("avg100");
-    avg100->cd();
-    int num100 = avgSomeGraphs(finput, 100, gavg100);
-    for (int i=0; i<num100; i++){
-      avg100->cd();      
-      gavg100[i]->Write(Form("gavg100_%d", i));
-    }
+    // TDirectory *avg100 = fout->mkdir("avg100");
+    // avg100->cd();
+    // int num100 = avgSomeGraphs(finput, 100, gavg100);
+    // for (int i=0; i<num100; i++){
+    //   avg100->cd();      
+    //   gavg100[i]->Write(Form("gavg100_%d", i));
+    // }
 
-        TDirectory *avg200 = fout->mkdir("avg200");
-    avg200->cd();
-    int num200 = avgSomeGraphs(finput, 200, gavg200);
-    for (int i=0; i<num200; i++){
-      avg200->cd();      
-      gavg200[i]->Write(Form("gavg200_%d", i));
-    }
+    //     TDirectory *avg200 = fout->mkdir("avg200");
+    // avg200->cd();
+    // int num200 = avgSomeGraphs(finput, 200, gavg200);
+    // for (int i=0; i<num200; i++){
+    //   avg200->cd();      
+    //   gavg200[i]->Write(Form("gavg200_%d", i));
+    // }
 
     fout->Write();
     delete fout;
