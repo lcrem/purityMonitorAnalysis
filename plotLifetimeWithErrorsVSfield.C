@@ -196,7 +196,7 @@
 // };
 
 
-string basefolder="/unix/dune/purity/2018September21Liquefaction/";
+string basefolder="2018September21Liquefaction/";
 string fields[]={
   "liquid/Silver/K-890GK-800GA800A1000_50.100.200V.cm"    ,
   "liquid/Silver/K-890GK-800GA800A1000_50.100.200V.cm"    ,
@@ -331,9 +331,9 @@ void plotLifetimeWithErrorsVSfield(){
     favg >> randomtxt;
     favg >> lifetime200  >> error200 >> rms200 >> rmserr200;
     
-    printf("avg50  lifetime us: %12.4e +- %12.4e \n",  lifetime50*1e6, rms50*1e6);
-    printf("avg100 lifetime us: %12.4e +- %12.4e \n",  lifetime100*1e6, rms100*1e6);
-    printf("avg200 lifetime us: %12.4e +- %12.4e \n",  lifetime200*1e6, rms200*1e6);
+    printf("avg50  lifetime us: %12.4e +- %12.4e \n",  lifetime50*1e6, error50*1e6);
+    printf("avg100 lifetime us: %12.4e +- %12.4e \n",  lifetime100*1e6, error100*1e6);
+    printf("avg200 lifetime us: %12.4e +- %12.4e \n",  lifetime200*1e6, error200*1e6);
     
     favg.close();
     

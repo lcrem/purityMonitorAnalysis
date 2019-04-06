@@ -425,7 +425,7 @@ double function1(double *x, double *par){
 
   double distance1 = 0.01823; // 1.8cm
   double distance2 = 0.16424; // 1.0cm
-  double distance3 = 0.0985; // 1.0cm
+  double distance3 = 0.00985; // 1.0cm
     
   double t1 = distance1/v1;
   double t2 = distance2/v2;
@@ -452,7 +452,7 @@ double function2(double *x, double *par){
 
   double distance1 = 0.01823; // 1.8cm
   double distance2 = 0.16424; // 1.0cm
-  double distance3 = 0.0985; // 1.0cm
+  double distance3 = 0.00985; // 1.0cm
     
   double t1 = distance1/v1;
   double t2 = distance2/v2;

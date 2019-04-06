@@ -195,19 +195,19 @@
 //   "150-300-600 V/cm"
 // };
 
-string myname="LongFibreGold";
-string basefolder="/unix/dune/purity/2018September21Liquefaction/";
+string myname="ShortFibreSilver";
+string basefolder="2018September21Liquefaction/";
 string fields[]={
-  // // "liquid/Silver/K-890GK-800GA800A1000_50.100.200V.cm"    ,
-  // "liquid/Silver/K-890GK-800GA800A1000_50.100.200V.cm"    ,
-  // "liquid/Silver/K-445GK-400GA400A500_25.50.100V.cm"      ,
-  // "liquid/Silver/K-445GK-400GA400A500_25.50.100V.cm"      ,
-  // "liquid/Silver/K-1780GK-1600GA1600A2000_100.200.400V.cm",
-  // "liquid/Silver/K-1780GK-1600GA1600A2000_100.200.400V.cm",
-  // "liquid/Silver/K-1602GK-1440GA1440A1800_90.180.360V.cm" ,
-  // "liquid/Silver/K-1246GK-1120GA1120A1400_70.140.280V.cm" ,
-  // "liquid/Silver/K-1246GK-1120GA1120A1400_70.140.280V.cm" ,
-  // "liquid/Silver/K-1246GK-1120GA1120A1400_70.140.280V.cm" ,
+   // "liquid/Silver/K-890GK-800GA800A1000_50.100.200V.cm"    ,
+   "liquid/Silver/K-890GK-800GA800A1000_50.100.200V.cm"    ,
+   "liquid/Silver/K-445GK-400GA400A500_25.50.100V.cm"      ,
+   "liquid/Silver/K-445GK-400GA400A500_25.50.100V.cm"      ,
+   "liquid/Silver/K-1780GK-1600GA1600A2000_100.200.400V.cm",
+   "liquid/Silver/K-1780GK-1600GA1600A2000_100.200.400V.cm",
+   "liquid/Silver/K-1602GK-1440GA1440A1800_90.180.360V.cm" ,
+   "liquid/Silver/K-1246GK-1120GA1120A1400_70.140.280V.cm" ,
+   "liquid/Silver/K-1246GK-1120GA1120A1400_70.140.280V.cm" ,
+   "liquid/Silver/K-1246GK-1120GA1120A1400_70.140.280V.cm" ,
   
    // "liquid/Gold/K-890GK-800GA800A1000_50.100.200V.cm"       ,
    // "liquid/Gold/K-890GK-800GA800A1000_50.100.200V.cm"       ,
@@ -222,9 +222,9 @@ string fields[]={
   // "longFibreLiquid/Silver/K-1246GK-1120GA1120A1400_70.140.280V.cm",   
   // "longFibreLiquid/Silver/K-1780GK-1600GA1600A2000_100.200.400V.cm",  
 
-  "longFibreLiquid/Gold/K-890GK-800GA800A1000_50.100.200V.cm",        
-  "longFibreLiquid/Gold/K-1246GK-1120GA1120A1400_70.140.280V.cm",     
-  "longFibreLiquid/Gold/K-1780GK-1600GA1600A2000_100.200.400V.cm",    
+  // "longFibreLiquid/Gold/K-890GK-800GA800A1000_50.100.200V.cm",        
+  // "longFibreLiquid/Gold/K-1246GK-1120GA1120A1400_70.140.280V.cm",     
+  // "longFibreLiquid/Gold/K-1780GK-1600GA1600A2000_100.200.400V.cm",    
 
 
 
@@ -232,16 +232,16 @@ string fields[]={
 	       };
 
 string fieldNice[]={
-  // // "Silver 50.100.200V.cm"    ,
-  // "Silver 50.100.200V.cm"    ,
-  // "Silver 25.50.100V.cm"      ,
-  // "Silver 25.50.100V.cm"      ,
-  // "Silver 100.200.400V.cm",
-  // "Silver 100.200.400V.cm",
-  // "Silver 90.180.360V.cm" ,
-  // "Silver 70.140.280V.cm" ,
-  // "Silver 70.140.280V.cm" ,
-  // "Silver 70.140.280V.cm" ,
+   // "Silver 50.100.200V.cm"    ,
+   "Silver 50.100.200V.cm"    ,
+   "Silver 25.50.100V.cm"      ,
+   "Silver 25.50.100V.cm"      ,
+   "Silver 100.200.400V.cm",
+   "Silver 100.200.400V.cm",
+   "Silver 90.180.360V.cm" ,
+   "Silver 70.140.280V.cm" ,
+   "Silver 70.140.280V.cm" ,
+   "Silver 70.140.280V.cm" ,
   
    // "Gold 50.100.200V.cm"       ,
    // "Gold 50.100.200V.cm"       ,
@@ -252,23 +252,23 @@ string fieldNice[]={
    // "Gold 70.140.280V.cm"    ,
    // "Gold 70.140.280V.cm"    ,
 
-  "50.100.200V.cm",  
-  "70.140.280V.cm",   
-  "100.200.400V.cm",  
+   // "50.100.200V.cm",  
+   // "70.140.280V.cm",   
+   // "100.200.400V.cm",  
 
 };
 
 string divisions[]={
-  // // "23.08",
-  // "02.01",
-  // "22.25",
-  // "22.17",
-  // "23.18",
-  // "01.56",
-  // "23.02",
-  // "22.56",
-  // "22.52",
-  // "01.50",
+  // "23.08",
+  "02.01",
+  "22.25",
+  "22.17",
+  "23.18",
+  "01.56",
+  "23.02",
+  "22.56",
+  "22.52",
+  "01.50",
   
    // "01.33",
    // "00.18",
@@ -279,13 +279,13 @@ string divisions[]={
    // "01.43",
    // "00.12",
 
-  // "01.03",
-  // "00.58",
-  // "01.09",
+   // "01.03",
+   // "00.58",
+   // "01.09",
        
-  "00.34",
-  "00.50",
-  "00.43",
+   // "00.34",
+   // "00.50",
+   // "00.43",
 
 };
 
@@ -356,9 +356,9 @@ void makeLifetimeWithErrorsGraph(){
     favg >> randomtxt;
     favg >> lifetime200  >> error200 >> rms200 >> rmserr200;
     
-    printf("avg50  lifetime us: %12.4e +- %12.4e \n",  lifetime50*1e6, rms50*1e6);
-    printf("avg100 lifetime us: %12.4e +- %12.4e \n",  lifetime100*1e6, rms100*1e6);
-    printf("avg200 lifetime us: %12.4e +- %12.4e \n",  lifetime200*1e6, rms200*1e6);
+    printf("avg50  lifetime us: %12.4e +- %12.4e \n",  lifetime50*1e6, error50*1e6);
+    printf("avg100 lifetime us: %12.4e +- %12.4e \n",  lifetime100*1e6, error100*1e6);
+    printf("avg200 lifetime us: %12.4e +- %12.4e \n",  lifetime200*1e6, error200*1e6);
     
     favg.close();
     
@@ -376,9 +376,9 @@ void makeLifetimeWithErrorsGraph(){
     gpurity200->SetPoint(ifield,  fieldValue, lifetime100*1e6);
     gpurity100->SetPoint(ifield,  fieldValue, lifetime200*1e6);
     gpurity50->SetPoint(ifield,   fieldValue, lifetime50*1e6);
-    gpurity200->SetPointError(ifield, 0, rms200*1e6);
-    gpurity100->SetPointError(ifield, 0, rms100*1e6);
-    gpurity50->SetPointError(ifield, 0, rms50*1e6);
+    gpurity200->SetPointError(ifield, 0, error200*1e6);
+    gpurity100->SetPointError(ifield, 0, error100*1e6);
+    gpurity50->SetPointError(ifield, 0, error50*1e6);
     
   }
   

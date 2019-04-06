@@ -34,7 +34,7 @@ void getSubtraction(string basename, string fieldname, string divname){
   getFields (fieldname, fields);
   distance[0] = 0.01823; // 1.8cm
   distance[1] = 0.16424; // 1.0cm
-  distance[2] = 0.0985; // 1.0cm
+  distance[2] = 0.00985; // 1.0cm
 
   
   cout << "Output file is " << outfile << endl;

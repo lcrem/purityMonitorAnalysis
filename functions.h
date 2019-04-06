@@ -2,13 +2,17 @@
 
 TGraph *justAverage(Int_t numGraphs, TGraph **grPtrPtr);
 
-TGraph *subtractGraphs( TGraph *grA, TGraph *grB) ;
+TGraph *subtractGraphs( TGraph *grA, TGraph *grB);
+
+TGraph *addGraphs( TGraph *grA, TGraph *grB);
 
 int addAndAverage(TGraph *avg, TGraph *temp, int fNumInAverage);
 
 TGraph *subtractNoise(TGraph *gsig, TGraph *gnoise);
 
 Double_t fittingFunction(Double_t *x, Double_t *par);
+
+Double_t fittingCathodeAndAnode(Double_t *x, Double_t *par);
 
 TGraph *smoothGraph(TGraph *g, int nnn);
 
@@ -136,6 +140,26 @@ TGraph *subtractGraphs( TGraph *grA, TGraph *grB)
 }
 
 
+TGraph *addGraphs( TGraph *grA, TGraph *grB) 
+{
+  Int_t N1=grA->GetN();
+  Int_t N2=grB->GetN();
+  if(N1!=N2) return NULL;
+
+  Double_t *newY = new Double_t [N1];
+  Double_t *xVals=grA->GetX();
+  Double_t x,yA,yB;
+  for(int i=0;i<N1;i++) {
+    grA->GetPoint(i,x,yA);
+    yB=grB->Eval(x);
+    newY[i]=(yA+yB)*(-1);
+  }
+  TGraph *grDiff = new TGraph(N1,xVals,newY);
+  delete [] newY;
+  return grDiff;
+}
+
+
 
 TGraph *subtractNoise(TGraph *gsig, TGraph *gnoise){
 
@@ -181,6 +205,62 @@ Double_t fittingFunction(Double_t *x, Double_t *par)
   double y = a*exp((sigma*sigma - 2*t*tau)/(2*tau*tau))*(1 + erf((-sigma*sigma+t*tau)/(sqrt(2)*tau*sigma)));
   
   return y;
+}
+
+Double_t fittingCathodeAndAnode(Double_t *x, Double_t *par)
+{
+  
+  double tA = x[0]*1E6 - par[3];
+  double sigmaA = par[0];
+  double tauA   = par[1];
+  double aA     = par[2];
+
+  double tK = x[0]*1E6 - par[7];
+  double sigmaK = par[4];
+  double tauK   = par[5];
+  double aK     = par[6];
+
+  
+  double yK = aK*exp((sigmaK*sigmaK - 2*tK*tauK)/(2*tauK*tauK))*(1 + erf((-sigmaK*sigmaK+tK*tauK)/(sqrt(2)*tauK*sigmaK)));
+  double yA = aA*exp((sigmaA*sigmaA - 2*tA*tauA)/(2*tauA*tauA))*(1 + erf((-sigmaA*sigmaA+tA*tauA)/(sqrt(2)*tauA*sigmaA)));
+  
+  return yA-yK;
+}
+
+
+Double_t singlePhaseFittingFunction(Double_t *x, Double_t *par){
+
+  Double_t t = x[0]*1000000.;
+  
+  Double_t bsln = par[0];
+  Double_t phsg = par[1];
+  Double_t xsta = par[2];
+  Double_t xsto = par[3];
+  Double_t tau1 = par[4];
+  Double_t tau2 = par[5];
+  Double_t boff = par[6];
+
+  Double_t dx1 = t - xsta;
+  Double_t dx2 = t - xsto;
+
+  Double_t phmx = phsg*(exp(-(xsto-xsta)/tau2)-exp(-(xsto-xsta)/tau1))+boff;
+  // Double_t phmx = phsg*(exp(-(xsto/tau2)+(xsta/(tau2*0.5)))-exp(-(xsto-xsta)/tau1))+boff;
+
+  Double_t fit=0.;
+  
+  if (t<xsta) {
+    fit=0.;
+  } else if (t<xsto) {
+    // cathode preamp has half tau electronics than anode preamp
+    fit = phsg*(exp(-dx1/tau2)-exp(-dx1/tau1));
+  } else {
+    fit = phmx*exp(-dx2/tau2)-boff;
+  }
+  
+  return fit+bsln;
+    
+  
+
 }
 
 Double_t signalFunction(Double_t *x, Double_t *par)
@@ -245,7 +325,6 @@ Double_t ICARUSpolynomial(Double_t E)
   vE *= (1e-3/1e-6);
   
   return vE;
-   
 
 }
 
@@ -434,15 +513,17 @@ TGraph *getFilteredAverage(Int_t numGraphs, TGraph **graphs, TGraph *powerSpectr
 
   double notchwidth = df/2;
   
-  for (int i=0; i<n; i++){
-    if (powerSpectrumCorr->GetY()[i]>maxPeak){
-      notchmin[nFilters] = (powerSpectrumCorr->GetX()[i] - notchwidth/2)*1e9;
-      notchmax[nFilters] = (powerSpectrumCorr->GetX()[i] + notchwidth/2)*1e9;
-      cout << nFilters << " " <<   notchmin[nFilters] << " " <<   notchmax[nFilters] << endl;
-      nFilters++;
-    } 
-  }
-
+  /* for (int i=0; i<n; i++){ */
+  /*   if (powerSpectrumCorr->GetY()[i]>maxPeak){ */
+  /*     notchmin[nFilters] = (powerSpectrumCorr->GetX()[i] - notchwidth/2)*1e9; */
+  /*     notchmax[nFilters] = (powerSpectrumCorr->GetX()[i] + notchwidth/2)*1e9; */
+  /*     cout << nFilters << " " <<   notchmin[nFilters] << " " <<   notchmax[nFilters] << endl; */
+  /*     nFilters++; */
+  /*   }  */
+  /* } */
+  notchmin[0] =  1e9;
+  notchmax[0] =  5e9;
+  nFilters++;
   
   TGraph *graphsFiltered[1000];
   
